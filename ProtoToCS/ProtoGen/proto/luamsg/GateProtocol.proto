@@ -1,0 +1,335 @@
+syntax = "proto2";
+package GateProtocol;
+
+message S2GRegisterServer {
+	required uint32 server_id = 1;
+	optional uint32 server_type = 2;
+}
+
+message G2SRegisterServerResult {
+	required bool result 		= 1;
+	repeated uint64 server_ids 	= 2; //其他注册到网关的服务器Id
+}
+
+//网关至逻辑服协议
+enum G2SProtocol {
+	CmdG2SRegisterServerResult 	= 1; //游服注册返回
+	CmdG2SClientOnline 			= 2; //客户端登录游服
+	CmdG2SClientOffline 		= 3; //客户端离线
+	CmdG2SClientData 			= 4; //客户端发送数据给游服
+	CmdG2STransServerMsg 		= 5; //中转游服消息
+	CmdG2SBroadcastServerMsg 	= 6; //广播游服消息
+	CmdG2SClientEnterMap 		= 7; //客户端登录地图服
+	CmdG2SClientPingNet 		= 8; //客户端检测与游服的ping值
+
+	CmdG2SJoinChatServerRet 	= 100; //绑定世界聊天服
+	CmdG2SSendChatMsg 			= 101; //发送世界聊天消息
+	CmdG2SChatHistory 			= 102; //世界聊天历史消息
+	CmdG2SServerOnline 			= 103; //通知已注册网关
+	CmdG2SServerOffline 		= 104; //通知断开网关
+}
+
+//逻辑服至网关协议
+enum S2GProtocol  {
+	CmdS2GRegisterServer		= 1; //游服注册 
+	CmdS2GUnicast				= 2; //游服单播数据
+	CmdS2GBroadcast				= 3; //游服广播数据
+	CmdS2GKickClient			= 4; //T玩家下线
+	CmdS2GKickClientAll			= 5; //T所有玩家下线
+	CmdS2GClientOnlineRet 		= 6; //客户端登录返回
+	CmdS2GPingStatus 			= 7; //ping通知游服在线人数和总人数
+	CmdS2GTransServerMsg 		= 8; //中转游服消息
+	CmdS2GBroadcastServerMsg 	= 9; //广播游服消息
+	CmdS2GClientPingNet 		= 10; //客户端检测与游服的ping值
+
+	CmdS2GJoinChatServer 		= 100; //加入世界聊天服
+	CmdS2GLeaveChatServer 		= 101; //离开世界聊天服
+	CmdS2GSendChatMsg 			= 102; //发送世界聊天消息
+	CmdS2GChatHistory 			= 103; //世界聊天历史消息
+}
+
+//客户端至网关协议
+enum C2GProtocol {
+	CmdC2GServerList 	= 1; //请求服务器列表
+	CmdC2GPing			= 2; //心跳包
+	CmdC2GLoginTo		= 3; //登录服务器
+	CmdC2GVisitTo		= 4; //访问服务器
+	CmdC2GSendData 		= 5; //给指定服务器发送数据
+	CmdC2GChatServerList = 6; //获取世界聊天频道列表
+	CmdC2GEnterMap		= 7; //进入地图, 成功登录游服后才能进入地图
+	CmdC2GPingServerNet	= 8; //客户端检测与游服的ping值
+}
+
+//网关至客户端协议
+enum G2CProtocol {
+	CmdG2CServerList	= 1; //请求服务器列表返回
+	CmdG2CPing			= 2; //心跳包返回
+	CmdG2CLoginTo		= 3; //登录服务器返回
+	CmdG2CVisitTo		= 4; //访问服务器返回
+	CmdG2CKickout		= 5; //T下线
+	CmdG2CSyncKey		= 6; //同步随机密钥
+	CmdG2CChatServerList = 7; //获取世界聊天频道列表
+	CmdG2CMapKickout	= 8; //地图服T下线
+	CmdG2CPingServerNet	= 9; //客户端检测与游服的ping值
+}
+
+enum EGateErrorCode {
+	EGateErrorCode_None = 0; //无
+	EGateErrorCode_WaitingForReplace = 1;  //等待顶号
+	EGateErrorCode_CanNotReplace = 2;      //无法顶号
+	EGateErrorCode_DBQueryError = 3;       //DB无法加载数据
+	EGateErrorCode_DupLogin = 4;           //重复登陆
+	EGateErrorCode_PasswdError = 5;        //密码错误
+	EGateErrorCode_UserNotExist = 6;       //用户不存在
+	EGateErrorCode_ServerNotReady = 7;     //服务器还没准备好
+	EGateErrorCode_AccountFormatError = 8; //账户格式错误
+	EGateErrorCode_PlayerDisabled = 9;		//用户已经被禁用
+	EGateErrorCode_ServerNotStarted = 10;	//服务器没开放
+	EGateErrorCode_ServerOnMaintenance = 11;//服务器在维护中
+	EGateErrorCode_SPVerifyFail = 12;		//SP登录验证失败
+	EGateErrorCode_BeenReplaced = 13;		//被顶号
+	EGateErrorCode_VersionChanged = 14;		//版本变更
+	EGateErrorCode_LoginTimeOut = 15;		//登陆链接超时
+	EGateErrorCode_InvalidLoginToken = 16;	//登录校验码无效
+
+	EGateErrorCode_ServerNotRun = 101;     //服务器还没开启
+	EGateErrorCode_NotLoginYet = 102;     //还未登录游服
+	EGateErrorCode_ConnServerIdSameWithLogic = 103;     //连接服Id与所登录的逻辑服Id一样
+	EGateErrorCode_GetServerListTimeout = 104;     //请求游服列表超时
+
+
+	EGateErrorCode_GameClientDisconnect		= 201; //客户端断线
+	EGateErrorCode_AccountDupLogin			= 202; //玩家重复登录
+	EGateErrorCode_ServerClose				= 203; //游服关闭
+	EGateErrorCode_AccountAbandon			= 204; //封号
+	EGateErrorCode_LoginIpAbandon			= 205; //封IP
+	EGateErrorCode_GameClientSessionLost	= 206; //
+	EGateErrorCode_LoginFailed				= 207; //
+	EGateErrorCode_ServerKick				= 208; //
+	EGateErrorCode_ServerLoadDataError		= 209; //
+
+	EGateErrorCode_PlayerNotFound			= 301; //玩家不存在
+	EGateErrorCode_WrongMapServer			= 302; //地图服Id不对
+	EGateErrorCode_NotPassDupIdYet			= 303; //未通关指定副本Id
+}
+
+
+message LoginInfo {
+	required string	name			= 1;
+	required string	password		= 2;
+	required string	device			= 3;
+	required string	system			= 4;
+	required string	language		= 5;
+	required uint32	game_version	= 6;
+	optional string packet_name		= 7; //包名
+}
+
+//网关至逻辑服
+message G2SClientOnline {
+	required uint32 client_id 		= 1;
+	required LoginInfo login_info 	= 2;
+	required string client_ip		= 3;
+	repeated uint64 vChannelIdList  = 4; //频道Id列表
+	optional string packageChannelId = 5; //漫灵渠道包标识
+}
+
+message G2SClientOffline {
+	required uint32 client_id 		= 1;
+	required EGateErrorCode reason	= 2;
+}
+
+message G2SClientData {
+	required uint32 client_id 	= 1;
+	required bytes proto_data 	= 2;
+}
+
+message G2SJoinChatServerRet {
+	required uint32 client_id 		= 1;
+	required uint32 server_id 		= 2; //世界聊天服Id
+}
+
+message G2SSendChatMsg {
+	required uint32 client_id 		= 1;
+	required uint32 server_id 		= 2; //世界聊天服Id
+	required bytes datas 			= 3; //聊天数据
+}
+
+message G2SServerOnline {
+	required uint64 server_id 		= 1; //网关中生成唯一Id
+}
+
+message G2SServerOffline {
+	required uint64 server_id 		= 1; //网关中生成唯一Id
+}
+
+message G2SClientEnterMap {
+	required uint32 client_id      = 1;
+	required string client_ip      = 2;
+	required uint64 nPlayerId      = 3;
+	required uint32 nLogicServerId = 4;
+}
+
+message G2SClientPingNet {
+	required uint64 sessionId 		= 1;
+	required C2GPingServerNet req 	= 2;
+}
+
+//逻辑服至网关
+message S2GUnicast {
+	required uint32 client_id 	= 1;
+	required bytes proto_data 	= 2;
+}
+
+message S2GBroadcast {
+	required bytes proto_data 	= 1;
+}
+
+message S2GKickClient {
+	required uint32 client_id 		= 1;
+	required EGateErrorCode nReason	= 2;
+}
+
+message S2GKickClientAll {
+	required EGateErrorCode nReason	= 1;
+}
+
+message S2GClientOnlineRet {
+	required uint32 client_id 		= 1;
+	required EGateErrorCode result	= 2;
+}
+
+message S2GPingStatus {
+	required uint32 online_num = 1;
+	required uint32 total_num = 2;
+}
+
+message S2GJoinChatServer {
+	required uint32 client_id 		= 1;
+	required uint32 server_id 		= 2; //世界聊天服Id
+	repeated uint64 vChannelIdList  = 3; //聊天频道Id列表
+	optional string packageChannelId  = 4; //漫灵渠道包标识
+}
+
+message S2GLeaveChatServer {
+	required uint32 client_id 		= 1;
+	required uint32 server_id 		= 2; //世界聊天服Id
+}
+
+message S2GSendChatMsg {
+	required uint32 client_id 		= 1;
+	required uint32 server_id 		= 2; //世界聊天服Id
+	required bytes datas 			= 3; //聊天数据
+}
+
+message S2GClientPingNet {
+	required uint64 sessionId = 1;
+	required C2GPingServerNet req = 2;
+}
+
+//客户端至网关协议
+//请求游服列表URl====>http://pay.mrpg.manlinggame.com:38102/GServer/getServerListName?gameId=10004&groupName=ios&channelName=sgmjz&page=1
+message C2GServerList {
+	required uint32 game_id 		= 1; 
+	required string group_name 		= 2;
+	required string channel_name 	= 3;
+}
+
+message C2GPing {
+	optional uint64 tick 			= 1;
+}
+
+message C2GLoginTo {
+	required uint32 server_id		= 1;
+	required LoginInfo login_info 	= 2;
+}
+
+message C2GVisitTo {
+	required uint32 server_id		= 1;
+	required LoginInfo login_info 	= 2;
+}
+
+message C2GSendData {
+	enum ESendDataType {
+		ESendDataType_Logic = 0;
+		ESendDataType_Map   = 1;
+	}
+	required uint32 server_id		= 1;
+	required bytes proto_data 		= 2;
+	optional uint32 package_index	= 3;
+	optional uint32 package_key		= 4;
+	optional uint32 data_type		= 5;
+}
+
+message C2GChatServerList {
+	optional uint32 nVersion = 1;
+}
+
+message C2GEnterMap {
+	required uint64 nPlayerId    = 1; //玩家Id
+	required uint32 nMapServerId = 2; //地图服Id
+}
+
+message C2GPingServerNet {
+	required uint32 nServerId = 1; //游服Id
+	optional uint64 tick = 2; //毫秒级别的tick
+}
+
+//网关至客户端协议
+message G2CServerList {
+	required EGateErrorCode result	= 1;
+	required string json_data		= 2;
+}
+
+message G2CPing {
+	optional uint64 tick 			= 1;
+}
+
+message G2CLoginTo {
+	required uint32 server_id		= 1;
+	required EGateErrorCode result 	= 2;
+}
+
+message G2CVisitTo {
+	required uint32 server_id		= 1;
+	required EGateErrorCode result 	= 2;
+	optional uint32 server_type		= 3;
+}
+
+message G2CKickout {
+	required uint32 server_id		= 1;
+	required EGateErrorCode reason	= 2;
+	optional uint32 server_type		= 3;
+}
+
+message G2CSyncKey {
+	required uint32 nRndKey		= 1; //随机密钥，防止玩家在没有破解客户端的情况抓包实现自动化脚
+}
+
+message ChatServerInfo {
+	required uint32 server_id = 1; //聊天服Id
+	required uint32 char_num = 2; //当前人数
+}
+
+message G2CChatServerList {
+	required uint32 nVersion = 1; //版本号
+	repeated ChatServerInfo vChatServerList = 2; //聊天服列表
+}
+
+message G2CPingServerNet {
+	required C2GPingServerNet req = 1;
+	optional uint32 nResult = 2; //0:游服正常，1:游服还没连接至当前网关
+}
+
+//游服通过网关转发协议
+message S2GTransServerMsg {
+	required uint32 serverId = 1; //目标或者源服Id
+	required bytes datas     = 2; //数据
+	optional uint32 serverType = 3; //目标或者源服类型
+}
+
+//广播游服协议
+message S2GBroadcastServerMsg {
+	required bytes datas     = 1; //数据
+	required uint32 serverId = 2; //源服Id
+	optional uint32 serverType = 3; //目标或者源服类型
+}

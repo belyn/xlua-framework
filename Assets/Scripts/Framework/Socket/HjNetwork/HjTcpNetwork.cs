@@ -1,6 +1,4 @@
-﻿//#define LOG_SEND_BYTES
-//#define LOG_RECEIVE_BYTES
-using System;
+﻿using System;
 using System.Net.Sockets;
 using CustomDataStruct;
 using System.Threading;
@@ -17,16 +15,20 @@ namespace Networks
         private HjSemaphore mSendSemaphore = null;
 
         protected IMessageQueue mSendMsgQueue = null;
+        protected StreamBuffer mRecvBuff = null;
+        protected int mCurRectBuffIndex = 0;
 
         public HjTcpNetwork(int maxBytesOnceSent = 1024 * 100, int maxReceiveBuffer = 1024 * 512) : base(maxBytesOnceSent, maxReceiveBuffer)
         {
             mSendSemaphore = new HjSemaphore();
             mSendMsgQueue = new MessageQueue();
+            mRecvBuff = StreamBufferPool.GetStream(mMaxReceiveBuffer * 2, true, true);
         }
 
         public override void Dispose()
         {
             mSendMsgQueue.Dispose();
+            mRecvBuff.Dispose();
             base.Dispose();
         }
 
@@ -40,6 +42,7 @@ namespace Networks
                 mIp = newServerIp;
             }
 
+            mCurRectBuffIndex = 0;
             mClientSocket = new Socket(newAddressFamily, SocketType.Stream, ProtocolType.Tcp);
             mClientSocket.BeginConnect(mIp, mPort, (IAsyncResult ia) =>
             {
@@ -149,44 +152,29 @@ namespace Networks
         {
             try
             {
-                // 组包、拆包
-                byte[] data = streamBuffer.GetBuffer();
-                int start = 0;
-                streamBuffer.ResetStream();
-                while (true)
+                lock (mRecvBuff)
                 {
-                    if (bufferCurLen - start < sizeof(int))
+                    byte[] data = streamBuffer.GetBuffer();
+                    int start = 0;
+                    streamBuffer.ResetStream();
+                    if (bufferCurLen > 0)
                     {
-                        break;
+                        int nRealRecvLen = mRecvBuff.size - mCurRectBuffIndex;
+                        if (nRealRecvLen > bufferCurLen)
+                        {
+                            nRealRecvLen = bufferCurLen;
+                        }
+
+                        mRecvBuff.CopyFrom(data, start, mCurRectBuffIndex, nRealRecvLen);
+                        start += nRealRecvLen;
+                        mCurRectBuffIndex += nRealRecvLen;
                     }
 
-                    int msgLen = BitConverter.ToInt32(data, start);
-                    if (bufferCurLen < msgLen + sizeof(int))
-                    {
-                        break;
-                    }
-
-                    // 提取字节流，去掉开头表示长度的4字节
-                    start += sizeof(int);
-                    var bytes = streamBuffer.ToArray(start, msgLen);
-#if LOG_RECEIVE_BYTES
-                    var sb = new System.Text.StringBuilder();
-                    for (int i = 0; i < bytes.Length; i++)
-                    {
-                        sb.AppendFormat("{0}\t", bytes[i]);
-                    }
-                    Logger.Log("HjTcpNetwork receive bytes : " + sb.ToString());
-#endif
-                    mReceiveMsgQueue.Add(bytes);
-
-                    // 下一次组包
-                    start += msgLen;
-                }
-
-                if (start > 0)
-                {
                     bufferCurLen -= start;
-                    streamBuffer.CopyFrom(data, start, 0, bufferCurLen);
+                    if (bufferCurLen > 0)
+                    {
+                        streamBuffer.CopyFrom(data, start, 0, bufferCurLen);
+                    }
                 }
             }
             catch (Exception ex)
@@ -195,16 +183,46 @@ namespace Networks
             }
         }
 
+        //业务线程调用
+        public override void UpdateNetwork()
+        {
+            if(mCurRectBuffIndex > 0)
+            {
+                byte[] tempBuff = null;
+                try
+                {
+                    int fromIndex = mCurRectBuffIndex;
+                    tempBuff = mRecvBuff.ToArray(0, fromIndex);
+                    if (ReceivePkgHandle != null)
+                    {
+                        int readLen = 0;
+                        int aaa = ReceivePkgHandle(tempBuff, out readLen);
+                        if (readLen > tempBuff.Length) throw new Exception("what the hell!! Recv out of the buff len");
+                        lock (mRecvBuff)
+                        {
+                            mCurRectBuffIndex -= readLen;
+                            mRecvBuff.CopyFrom(mRecvBuff.GetBuffer(), fromIndex - readLen, 0, mCurRectBuffIndex);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError("Got the fucking exception :" + e.Message);
+                }
+                finally
+                {
+                    if (tempBuff != null)
+                    {
+                        StreamBufferPool.RecycleBuffer(tempBuff);
+                    }
+                }
+            }
+            base.UpdateNetwork();
+        }
+
+        //线程安全，随便调用
         public override void SendMessage(byte[] msgObj)
         {
-#if LOG_SEND_BYTES
-            var sb = new System.Text.StringBuilder();
-            for (int i = 0; i < msgObj.Length; i++)
-            {
-                sb.AppendFormat("{0}\t", msgObj[i]);
-            }
-            Logger.Log("HjTcpNetwork send bytes : " + sb.ToString());
-#endif
             mSendMsgQueue.Add(msgObj);
             mSendSemaphore.ProduceResrouce();
         }

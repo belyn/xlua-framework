@@ -1,0 +1,271 @@
+syntax = "proto2";
+package PlayerSaveProtocol;
+
+message PlayerControl {
+	required uint64 nTargetId	= 1;
+	required uint32 nEndTime 	= 2;
+}
+
+message AccountInfo {
+	repeated uint64 playerIds			= 1; 
+	repeated PlayerControl controls		= 2;
+}
+
+message PlayerListInfo {
+	required uint64		playerId	= 1;
+	required uint32		serverId	= 2;
+	required string		name		= 3;
+	required uint32		headId		= 4;
+}
+
+message PlayerList {
+	repeated PlayerListInfo info = 1;
+}
+
+message PlayerDataSaveToMysql {
+	required uint64			playerId			= 1;
+	required string			playerName			= 2;
+	required uint32			charLevel			= 3;
+	required uint32			playerExp			= 4;
+	required uint32			gold				= 5;
+	required uint32			forage				= 6;
+	required uint32			wood				= 7;
+	required uint32			iron				= 8;
+	required uint32			silver				= 9;
+	required uint32			bindForage			= 10;
+	required uint32			bindWood			= 11;
+	required uint32			bindIron			= 12;
+	required uint32			bindSilver			= 13;
+	required uint32			updataTime			= 14;
+	required uint32			vipLevel			= 15;
+	required uint32			firstrechargetime	= 16;
+	required uint32			firstrechargelevel	= 17;
+	required uint32			totalrecharge		= 18;
+	required uint64			cityId				= 19;
+	required uint32			loginIp				= 20;
+	required uint32			fightpower			= 21;
+	optional uint32			country				= 22;
+	optional uint32			offlineTime			= 23;
+	optional uint32			lastLoginTime		= 24;
+	optional uint32			totalOnline			= 25;
+}
+
+message HeadFrame {
+	required uint32 nId = 1;
+	optional uint32 nExpiredTime = 2; //过期时间，0为完全完全解锁; 有效期时间过了客户端自动切换成默认框表现
+}
+message PlayerBaseData {
+	required string			name		= 1;
+	required uint32			level		= 2;
+	required uint32			serverId	= 3;
+	required uint64			playerId	= 4;
+	required uint32			createTime	= 5;
+	required string			account		= 6;
+	optional uint64			allianceId	= 7;
+	optional uint64			cityActorId = 8;
+	optional uint32			headId		= 9;
+	optional uint32 		offlineTime	= 10;
+	optional uint32 		state 		= 11;
+	optional uint32			lastLoginTime = 12;
+	optional bool 			bIsNewPlayer = 13;	//是否新角色
+	optional string			spid		= 14;
+	optional uint32			totalOnline	 = 15;
+	optional uint32			curServerId	 = 16; //当前所在游服Id
+	optional uint32			headFrameId	 = 17; //当前头像框Id
+	repeated HeadFrame		unlockheadframe = 20;//已解锁头像框
+	optional string			sign		= 21; //个性签名
+}
+
+message CharacterData {
+	required uint32			energy				= 1;
+	required uint32			energyTimestamp		= 2;
+	required uint32			energyBuyCount 		= 3;
+	required uint32			energyBuyTimestamp 	= 4;
+	required uint32			military 			= 5;
+	required uint32 		militaryTimestamp 	= 6;
+	required uint32 		militaryBuyCount 	= 7;
+	required uint32			militaryBuyTimestamp = 8;
+	required uint32			gold				= 9;
+	required uint32         nameBuyCount		= 10;
+	required bool			mapGuideFinish		= 11;
+	required uint32			wharfTimestamp 		= 12;
+	required uint32			wharfIndex			= 13;
+	required uint32			wharfOnlineTime		= 14;
+	optional uint32			nameLockTime		= 15; //下次可改名时间
+	optional uint64			refugee				= 16;
+	optional uint32			refugeeTimestamp	= 17;
+}
+
+message VipModuleData {
+	required uint32			vipLevel			 = 1;
+	required uint32			firstrechargetime	 = 2;
+	required uint32 		lastrechargetime 	 = 3;
+	required uint32			firstrechargelevel	 = 4;
+	required uint32			amassChargeExpValue  = 5;
+	required uint32			amassChargeGoldValue = 6;
+	repeated uint32			chargeTags			 = 7;
+	repeated uint32			amassChargeGifts	 = 8;
+	repeated uint32			vipGiftBuy			 = 9;
+	required uint32			dailyVipGiftTimeSamp = 10;
+	required bool			isGetChargeFirstGift = 11;
+	repeated string			vOrderIdList		 = 12;
+	optional uint32			nVisaBornServerId	 = 13; //签证出生服Id
+	optional uint32			nImmigrationRechargeGold	 = 14; //移民时充值总金额
+	optional uint32			nImmigrationTime	 = 15; //移民时间
+	optional uint32			nVisaCityLevelRewardTime	 = 16; //移民王城等级奖励发送时间
+	optional uint32			nVisaCityLevelMax	 = 17; //移民王城等级
+	optional uint32 		nRealCharge			= 18;	//真实充值金额
+	optional uint32         dailyChargeGoldValue = 19; //当日充值元宝数量
+	optional uint32         dailyChargeGoldResetTime = 20; //每日充值元宝刷新时间
+	optional uint32         isGetSVipGift        = 21; //是否领取过SVIP礼包
+}
+
+//收藏夹
+enum FavoriteType { //收藏类型
+	Mark = 0; //标记
+	Friend = 1; //朋友
+	Enemy = 2; //敌人
+}
+enum TargetType {
+	ActorCity = 0; //城池
+	Monster = 1; //怪物
+	Forage = 2; //农田
+	Wood = 3; //伐木场
+	Iron = 4; //铁矿
+	Chapman = 5; //商人
+	Box = 6; //宝箱
+	WorldCity = 7; //王城
+	GuildBuild = 8; //联盟建筑
+	Area = 9; //空地
+	Beacon = 10; //烽火台
+	Tower = 11; //箭塔
+	Battery = 12; //弩炮
+	HorseRanch = 13; //马场
+	Relic = 14; //遗迹
+	MonsterBox = 15; //怪物宝箱	
+	TreasureMonster = 16; //文物怪	
+}
+
+message FavoriteItem {
+	required FavoriteType 	favoriteType 	= 1;
+	required TargetType 	targetType 	= 2;
+	required uint64	actorId = 3;
+	required string	comment	= 4;
+	required uint32	level	= 5;
+	required int32	posX	= 6;
+	required int32	posY	= 7;
+	required uint32	headId	= 8;
+	optional uint32	headFrameId	= 9;
+	optional uint32 monsterType = 10; //增加怪物类型
+	optional uint32 titleId = 11;
+}
+message Favorite {
+	repeated FavoriteItem items = 1;
+}
+
+message EnemySituationItem {
+	enum Status {
+		Ignore = 1;//忽略
+		Delete = 2;
+		Going = 3;
+	}
+	required uint64	actorId = 1;
+	required uint32	country = 2;
+	required string	name	= 3;
+	required string	guildName	= 4;
+	required uint32	headId	= 5;
+	required uint32	level	= 6;
+	required uint32	posX	= 7;
+	required uint32	posY	= 8;
+	required Status status	= 9;
+	optional uint32	headFrameId	= 10;
+	optional uint32	titleId	= 11;
+}
+message EnemySituation {
+	repeated EnemySituationItem items = 1;
+}
+
+message SkinInfoItem{
+	optional int32		skinId					= 1;
+	optional int32		skinEndTime				= 2;
+	optional bool		isCurrentUsed			= 3;	
+}
+
+enum SkinInfoType {
+		TroopSkin = 1;
+		CitySkin = 2;
+}
+
+message SkinInfoData{
+	repeated SkinInfoItem items = 1;
+}
+
+
+message SyncSkinInfo{
+	enum Status {
+		Add = 1;//忽略
+		Remove = 2;
+		Change = 3;
+	}
+	required SkinInfoItem item = 1;
+	required Status status	= 2;
+}
+
+message ExamResultInfo {
+	required uint32 nId 		= 1; //试题Id
+	optional uint32 nExamKey 	= 2; //试题密钥
+	optional uint32 nAnswerIdx 	= 3; //答案
+	optional uint32 nAnswerTime = 4; //回答时间
+}
+
+message ExamModuleData {
+	required uint32 nDailyResetTime 		= 1; //最后重置时间点
+	repeated ExamResultInfo vExamResultList	= 2; //答题列表
+	optional uint32 nLastPushExamTime		= 3; //上次推荐答题时间
+	optional uint32 nAnswerCount			= 4; //当天答题次数
+	optional uint32 nAnswerCountSum			= 5; //总答题次数
+	optional uint32 nFlags					= 6; //1-已推荐过试题
+}
+
+message SyncExamModuleData {
+	required uint32 type 					= 1; //1-答题次数（nAnswerCount，nAnswerCountSum），2-标记（nFlags）
+	optional uint32 nAnswerCount			= 2; //当天答题次数
+	optional uint32 nAnswerCountSum			= 3; //总答题次数
+	optional uint32 nFlags					= 4; //1-已推荐过试题
+}
+
+message ExamItemInfo {
+	required uint32 nItemId = 1;
+	required uint32 nItemCount = 2;
+}
+message ReqExamOp {
+	required uint32 nOpType 	= 1; //1-请求新试题，2-提交答案
+	optional uint32 nOpResult 	= 2; //0-成功，1-系统未开放，2-答题密钥不对，3-答题次数不足，4-试题库不足，5-重复提交
+	optional uint32 nExamId 	= 3; //试题Id
+	optional uint32 nExamKey 	= 4; //试题密钥
+	optional uint32 nAnswerIdx 	= 5; //答案
+	repeated ExamItemInfo vRewardItemList = 6; //奖励
+}
+
+enum PlayerModuleId
+{
+	PlayerBase = 1;
+	Character = 2;
+	VipModule = 3;
+	StoreModule = 4;
+	DupModule = 5;
+	LotteryModule = 6;
+	FavoriteModule = 7;
+	PlayerGuideModule = 8;
+	EnemySituationModule = 9;
+	SkinModule = 10;
+	ExamModule = 11;
+	AfkDupModule = 12;
+	MAX_MODULE = 13;
+}
+
+message PlayerModuleData {
+	required uint64				playerId		= 1;
+	required uint32				moduleId 		= 2;
+	required bytes				ModuleData		= 3;
+}

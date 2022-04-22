@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using CustomDataStruct;
 using System.Threading;
+using XLua;
 
 namespace Networks
 {
@@ -13,11 +14,13 @@ namespace Networks
         CONNECTED,
     }
 
+    [CSharpCallLua]
+    public delegate int NetWorkReceiveByteHandle(byte[] obj, out int readLen);
     public abstract class HjNetworkBase
     {
         public Action<object, int, string> OnConnect = null;
         public Action<object, int, string> OnClosed = null;
-        public Action<byte[]> ReceivePkgHandle = null;
+        public NetWorkReceiveByteHandle ReceivePkgHandle = null;
 
         private List<HjNetworkEvt> mNetworkEvtList = null;
         private object mNetworkEvtLock = null;
@@ -33,8 +36,6 @@ namespace Networks
 
         private Thread mReceiveThread = null;
         private volatile bool mReceiveWork = false;
-        private List<byte[]> mTempMsgList = null;
-        protected IMessageQueue mReceiveMsgQueue = null;
         
 
         public HjNetworkBase(int maxBytesOnceSent = 1024 * 512, int maxReceiveBuffer = 1024 * 1024 * 2)
@@ -46,8 +47,6 @@ namespace Networks
 
             mNetworkEvtList = new List<HjNetworkEvt>();
             mNetworkEvtLock = new object();
-            mTempMsgList = new List<byte[]>();
-            mReceiveMsgQueue = new MessageQueue();
         }
 
         public virtual void Dispose()
@@ -120,7 +119,6 @@ namespace Networks
 
         public virtual void StopAllThread()
         {
-            mReceiveMsgQueue.Dispose();
 
             if (mReceiveThread != null)
             {
@@ -246,41 +244,8 @@ namespace Networks
             }
         }
 
-        private void UpdatePacket()
-        {
-            if (!mReceiveMsgQueue.Empty())
-            {
-                mReceiveMsgQueue.MoveTo(mTempMsgList);
-
-                try
-                {
-                    for (int i = 0; i < mTempMsgList.Count; ++i)
-                    {
-                        var objMsg = mTempMsgList[i];
-                        if (ReceivePkgHandle != null)
-                        {
-                            ReceivePkgHandle(objMsg);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError("Got the fucking exception :" + e.Message);
-                }
-                finally
-                {
-                    for (int i = 0; i < mTempMsgList.Count; ++i)
-                    {
-                        StreamBufferPool.RecycleBuffer(mTempMsgList[i]);
-                    }
-                    mTempMsgList.Clear();
-                }
-            }
-        }
-
         public virtual void UpdateNetwork()
         {
-            UpdatePacket();
             UpdateEvt();
         }
 

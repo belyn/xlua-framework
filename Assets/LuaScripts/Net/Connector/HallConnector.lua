@@ -20,8 +20,10 @@ local function __init(self)
 end
 
 local function OnReceivePackage(self, receive_bytes)
-	local receive_msg = NetUtil.DeserializeMessage(receive_bytes)
+	local receive_msg, readLen = NetUtil.DeserializeMessage(receive_bytes)
 	Logger.Log(tostring(receive_msg))
+	Logger.Log("OnReceivePackage readLen:"..readLen)
+	return 1, 2, 3, 4, 5
 end
 
 local function Connect(self, host_ip, host_port, on_connect, on_close)

@@ -1,0 +1,63 @@
+syntax = "proto2";
+import "PlayerSaveProtocol.proto";
+package LoginProtocol;
+
+enum LoginPacketFlag {
+	RedPacket = 1; //红包版本
+}
+
+message RequestLogin {
+	required string	name			= 1;
+	required string	password		= 2;
+	required string	device			= 3;
+	required string	system			= 4;
+	required string	language		= 5;
+	required uint32	game_version	= 6;
+	optional string packet_name		= 7; //包名
+	optional uint32 packet_flag 	= 8; //包标记
+}
+
+message RequestPlayerList {
+
+}
+
+message RequestLoadPlayer {
+	required uint64	playerId		= 1;
+}
+
+message RequestCreatePlayer {
+	required string sCharName		= 1; //角色名称
+	required uint32 nRoleId			= 2; //角色形象
+	required uint32 nState 			= 3;	//国家
+}
+
+
+
+
+message LoginError {
+	required uint32	errorCode		= 1;
+	required uint32	serverId		= 2;
+	optional string	notice			= 3;
+}
+
+message CreatePlayerError {
+	required uint32	errorCode		= 1;
+}
+
+message PlayerReady {
+	required uint32	result		= 1;
+}
+
+message BeginLoadData {
+	required uint32	result			= 1;
+	optional uint32	configVersion	= 2; //配置版本号, 默认为1. 1就是对应data目录, 2=data2目录, 3=data3目录... 
+}
+
+message PlayerListResult{
+	required PlayerSaveProtocol.PlayerList player_list_result = 1;
+	optional uint32 recommondState = 2;		//推荐国家
+}
+
+message PlayerModuleData{
+	required PlayerSaveProtocol.PlayerModuleData player_module_data = 1;
+}

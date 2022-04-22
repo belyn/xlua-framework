@@ -4,7 +4,7 @@
 --]]
 
 local UILoginCtrl = BaseClass("UILoginCtrl", UIBaseCtrl)
-local MsgIDMap = require "Net.Config.MsgIDMap"
+local MsgIDMap = require "Net.Config.CustomMsgIDMap"
 local MsgIDDefine = require "Net.Config.MsgIDDefine"
 
 local function OnConnect(self, sender, result, msg)
@@ -14,17 +14,16 @@ local function OnConnect(self, sender, result, msg)
 	end
 	
 	-- TODO：
-	local msd_id = MsgIDDefine.LOGIN_REQ_GET_UID
-    local msg = (MsgIDMap[msd_id])()
-	msg.plat_account = "455445"
-	msg.from_svrid = 4001
-	msg.device_id = ""
-	msg.device_model = "All Series (ASUS)"
-	msg.mobile_type = ""
-	msg.plat_token = ""
-	msg.app_ver = ""
-	msg.package_id = ""
-	msg.res_ver = ""
+	local msd_id = 778
+    local msg = (MsgIDMap.C2S[msd_id])()
+	msg.server_id = 16
+	msg.login_info.name = "marvin100&X-XY-H"
+	msg.login_info.password = ""
+	msg.login_info.device = "win"
+	msg.login_info.system = ""
+	msg.login_info.language = "zh-CN"
+	msg.login_info.game_version = 68551688
+	msg.login_info.packet_name = "zlslg"
 	HallConnector:GetInstance():SendMessage(msd_id, msg)
 end
 
@@ -36,7 +35,8 @@ local function OnClose(self, sender, result, msg)
 end
 
 local function ConnectServer(self)
-	HallConnector:GetInstance():Connect("192.168.1.245", 10020, Bind(self, OnConnect), Bind(self, OnClose))
+	HallConnector:GetInstance():Dispose()
+	HallConnector:GetInstance():Connect("127.0.0.1", 9588, Bind(self, OnConnect), Bind(self, OnClose))
 end
 
 local function LoginServer(self, name, password)
@@ -64,8 +64,8 @@ local function LoginServer(self, name, password)
 	ClientData:GetInstance():SetAccountInfo(name, password)
 	
 	-- TODO
-	--ConnectServer(self)
-	SceneManager:GetInstance():SwitchScene(SceneConfig.HomeScene)
+	ConnectServer(self)
+	-- SceneManager:GetInstance():SwitchScene(SceneConfig.HomeScene)
 end
 
 local function ChooseServer(self)
