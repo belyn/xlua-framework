@@ -10,6 +10,7 @@ namespace Networks
     [Hotfix]
     public class HjTcpNetwork : HjNetworkBase
     {
+        public Action<byte[]> ReceivePkgHandle = null;
         private Thread mSendThread = null;
         private volatile bool mSendWork = false;
         private HjSemaphore mSendSemaphore = null;
@@ -188,21 +189,15 @@ namespace Networks
         {
             if(mCurRectBuffIndex > 0)
             {
+                int fromIndex = 0;
                 byte[] tempBuff = null;
                 try
                 {
-                    int fromIndex = mCurRectBuffIndex;
+                    fromIndex = mCurRectBuffIndex;
                     tempBuff = mRecvBuff.ToArray(0, fromIndex);
                     if (ReceivePkgHandle != null)
                     {
-                        int readLen = 0;
-                        int aaa = ReceivePkgHandle(tempBuff, out readLen);
-                        if (readLen > tempBuff.Length) throw new Exception("what the hell!! Recv out of the buff len");
-                        lock (mRecvBuff)
-                        {
-                            mCurRectBuffIndex -= readLen;
-                            mRecvBuff.CopyFrom(mRecvBuff.GetBuffer(), fromIndex - readLen, 0, mCurRectBuffIndex);
-                        }
+                        ReceivePkgHandle(tempBuff);
                     }
                 }
                 catch (Exception e)
@@ -211,6 +206,11 @@ namespace Networks
                 }
                 finally
                 {
+                    lock (mRecvBuff)
+                    {
+                        if (mCurRectBuffIndex < fromIndex) throw new Exception("what the hell! the receive buff is fucking changed");
+                        mCurRectBuffIndex -= fromIndex;
+                    }
                     if (tempBuff != null)
                     {
                         StreamBufferPool.RecycleBuffer(tempBuff);

@@ -14,13 +14,10 @@ namespace Networks
         CONNECTED,
     }
 
-    [CSharpCallLua]
-    public delegate int NetWorkReceiveByteHandle(byte[] obj, out int readLen);
     public abstract class HjNetworkBase
     {
         public Action<object, int, string> OnConnect = null;
         public Action<object, int, string> OnClosed = null;
-        public NetWorkReceiveByteHandle ReceivePkgHandle = null;
 
         private List<HjNetworkEvt> mNetworkEvtList = null;
         private object mNetworkEvtLock = null;

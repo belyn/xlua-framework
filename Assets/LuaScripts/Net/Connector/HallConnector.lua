@@ -6,6 +6,8 @@
 local HallConnector = BaseClass("HallConnector", Singleton)
 local SendMsgDefine = require "Net.Config.SendMsgDefine"
 local NetUtil = require "Net.Util.NetUtil"
+local ByteArray = require "Net.Connector.ByteArray"
+local PackageLen = 4
 
 local ConnStatus = {
 	Init = 0,
@@ -17,13 +19,37 @@ local ConnStatus = {
 local function __init(self)
 	self.hallSocket = nil
 	self.globalSeq = 0
+	self.m_sReadBuff = ByteArray.New(ByteArray.ENDIAN_LITTLE)
 end
 
 local function OnReceivePackage(self, receive_bytes)
-	local receive_msg, readLen = NetUtil.DeserializeMessage(receive_bytes)
-	Logger.Log(tostring(receive_msg))
-	Logger.Log("OnReceivePackage readLen:"..readLen)
-	return 1, 2, 3, 4, 5
+	assert(receive_bytes ~= nil and type(receive_bytes) == "string")
+	print("OnReceivePackage:", string.byte(receive_bytes, 1, string.len(receive_bytes)))
+	self.m_sReadBuff:writeBuf(receive_bytes)
+	self.m_sReadBuff:setPos(1)
+
+	local receive_msgs = NetUtil.DeserializeMessage(self.m_sReadBuff)
+
+	if self.m_sReadBuff:getAvailable() > 0 then
+		local nLeft = self.m_sReadBuff:getAvailable()
+		local msgData = self.m_sReadBuff:readBuf(nLeft)
+		assert(self.m_sReadBuff:getAvailable() == 0)
+		self.m_sReadBuff:setPos(1)
+		self.m_sReadBuff:setLen(0)
+		self.m_sReadBuff:writeBuf(msgData)
+		
+		self.m_sReadBuff:setPos(1)
+		assert(self.m_sReadBuff:getAvailable() == nLeft)
+	else
+		self.m_sReadBuff:setPos(1)
+		self.m_sReadBuff:setLen(0)
+	end
+
+	for i = 1, #receive_msgs do
+		local receive_msg = receive_msgs[i]
+		Logger.Log(tostring(receive_msg))
+		-- TODO 协议分发
+	end
 end
 
 local function Connect(self, host_ip, host_port, on_connect, on_close)
@@ -31,6 +57,8 @@ local function Connect(self, host_ip, host_port, on_connect, on_close)
 		self.hallSocket = CS.Networks.HjTcpNetwork()
 		self.hallSocket.ReceivePkgHandle = Bind(self, OnReceivePackage)
 	end
+	self.m_sReadBuff:setPos(1)
+	self.m_sReadBuff:setLen(0)
 	self.hallSocket.OnConnect = on_connect
 	self.hallSocket.OnClosed = on_close
 	self.hallSocket:SetHostPort(host_ip, host_port)
