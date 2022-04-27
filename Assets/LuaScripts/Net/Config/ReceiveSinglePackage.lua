@@ -14,7 +14,7 @@ local ReceiveSinglePackage = {
 	
 	__tostring = function(self)
 		local full_name = getmetatable(self.MsgProto)._descriptor.full_name
-		local str = "MsgID = "..tostring(self.MsgID)..", ".."result = "..tostring(self.MsgProto.result).."\n"
+		local str = "MsgID = "..tostring(self.MsgID).."\n"
 		str = str..full_name..":{\n"..tostring(self.MsgProto).."}"
 		return str
 	end,

@@ -405,6 +405,8 @@ def write_header(writer):
 # added by wsh @ 2017-01-06
 # 1、修改pb库文件路径和生成的pb文件路径
 # 2、拿掉module语法
+# 2022.4.27 modified by marvin 
+# 1、生成全局枚举
 def code_gen_file(proto_file, env, is_gen):
     filename = path.splitext(proto_file.name)[0]
     env.enter_file(filename, proto_file.package)
@@ -417,11 +419,16 @@ def code_gen_file(proto_file, env, is_gen):
 #    for field_desc in proto_file.extension:
 #        code_gen_extensions(field_desc, field_desc.name, env)
 
+    # for enum_desc in proto_file.enum_type:
+    #     code_gen_enum(enum_desc, env)
+    #     env.message.append('_M.%s = {}\n' % (enum_desc.name))
+    #     for enum_value in enum_desc.value:
+    #         env.message.append('_M.%s.%s = %d\n' % (enum_desc.name, enum_value.name, enum_value.number))
+
     for enum_desc in proto_file.enum_type:
         code_gen_enum(enum_desc, env)
         for enum_value in enum_desc.value:
-            env.message.append('%s = %d\n' % (enum_value.name,
-                                              enum_value.number))
+            env.message.append('_M.%s = %d\n' % (enum_value.name, enum_value.number))
 
     for msg_desc in proto_file.message_type:
         code_gen_message(msg_desc, env)

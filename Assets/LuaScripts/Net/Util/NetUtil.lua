@@ -4,7 +4,6 @@
 --]]
 
 local NetUtil = {}
-local MsgIDMap = require "Net.Config.CustomMsgIDMap"
 local ReceiveSinglePackage = require "Net.Config.ReceiveSinglePackage"
 local ReceiveMsgDefine = require "Net.Config.ReceiveMsgDefine"
 
@@ -52,12 +51,6 @@ local function SerializeMessage(msg_obj, global_seq)
 	output = output..string.pack("=I2", msg_obj.MsgID)
 	output = output..string.pack("=I2", string.len(send_msg))
 	output = output..send_msg
-	-- output = output..string.pack("=I4", global_seq)
-	-- output = output..string.pack("=I4", msg_obj.RequestSeq)
-	-- output = output..XOR(global_seq, msg_obj.MsgID, send_msg)
-	-- output = string.pack("=I4", string.len(output))..output
-	
-	--print("send bytes:", string.byte(output, 1, #output))
 	return output
 end
 
@@ -65,7 +58,7 @@ local PackageHeaderLen = 4
 local function DeserializeMessage(byteArray, start, length)
 	local packages = {}
 	while byteArray:getAvailable() >= PackageHeaderLen do
-		local msg_id = byteArray:readUShort()
+		local real_msg_id = byteArray:readUShort()
 		local pkg_length = byteArray:readUShort()
 		if byteArray:getAvailable() < pkg_length then
 			local pos = byteArray:getPos() - PackageHeaderLen
@@ -74,19 +67,15 @@ local function DeserializeMessage(byteArray, start, length)
 		end
 
 		local pb_data = byteArray:readBuf(pkg_length)
-		print("msg_id:", msg_id, ", pkg_length:", pkg_length, ", pb_data:", string.byte(pb_data, 1, string.len(pb_data)))
+		-- print(string.format("real_msg_id[%d](module_id:%d, msg_id:%d)", real_msg_id, CustomMsgIDMap.TranslateMsgId(real_msg_id)), ", pkg_length:", pkg_length, ", pb_data:", string.byte(pb_data, 1, string.len(pb_data)))
 
-		local msgProtoConfig = (MsgIDMap.S2C[msg_id])
-		local msg_obj = nil 
-		if msgProtoConfig then
-			msg_obj = msgProtoConfig()
-		end
+		local msg_obj = CustomMsgIDMap.NewS2CProto(real_msg_id) 
 		if msg_obj then
 			msg_obj:ParseFromString(pb_data)
-			local one_package = ReceiveSinglePackage.New(msg_id, msg_obj)
+			local one_package = ReceiveSinglePackage.New(real_msg_id, msg_obj)
 			table.insert(packages, one_package)
 		else
-			Logger.LogError("No proto type match msg id : "..msg_id)
+			Logger.LogError(string.format("No proto config real_msg_id[%d](module_id:%d, msg_id:%d)", real_msg_id, CustomMsgIDMap.TranslateMsgId(real_msg_id)))
 		end
 	end
 	return packages

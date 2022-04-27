@@ -4,8 +4,6 @@
 --]]
 
 local UILoginCtrl = BaseClass("UILoginCtrl", UIBaseCtrl)
-local MsgIDMap = require "Net.Config.CustomMsgIDMap"
-local MsgIDDefine = require "Net.Config.MsgIDDefine"
 
 local function OnConnect(self, sender, result, msg)
 	if result < 0 then
@@ -14,17 +12,17 @@ local function OnConnect(self, sender, result, msg)
 	end
 	
 	-- TODO：
-	local msd_id = 778
-    local msg = (MsgIDMap.C2S[msd_id])()
-	msg.server_id = 16
-	msg.login_info.name = "marvin100&X-XY-H"
+	print("ClientData:GetInstance().account", ClientData:GetInstance().account)
+    local msg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GLoginTo)
+	msg.server_id = 255
+	msg.login_info.name = ClientData:GetInstance().account.."&X-XY-H"
 	msg.login_info.password = ""
 	msg.login_info.device = "win"
 	msg.login_info.system = ""
 	msg.login_info.language = "zh-CN"
 	msg.login_info.game_version = 68551688
 	msg.login_info.packet_name = "zlslg"
-	HallConnector:GetInstance():SendMessage(msd_id, msg)
+	HallConnector:GetInstance():SendMessage(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GLoginTo, msg)
 end
 
 local function OnClose(self, sender, result, msg)
@@ -36,7 +34,8 @@ end
 
 local function ConnectServer(self)
 	HallConnector:GetInstance():Dispose()
-	HallConnector:GetInstance():Connect("127.0.0.1", 9588, Bind(self, OnConnect), Bind(self, OnClose))
+	-- HallConnector:GetInstance():Connect("127.0.0.1", 9588, Bind(self, OnConnect), Bind(self, OnClose))
+	HallConnector:GetInstance():Connect("192.168.8.2", 9588, Bind(self, OnConnect), Bind(self, OnClose))
 end
 
 local function LoginServer(self, name, password)

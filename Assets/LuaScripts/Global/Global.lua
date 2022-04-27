@@ -24,6 +24,14 @@ SortingLayerNames = require "Global.SortingLayerNames"
 Logger = require "Framework.Logger.Logger"
 require "Framework.Updater.Coroutine"
 
+-- 协议
+CSCommon_pb = require "Net.Protol.CSCommon_pb"
+GateProtocol_pb = require "Net.Protol.GateProtocol_pb"
+LoginProtocol_pb = require "Net.Protol.LoginProtocol_pb"
+PlayerProtocol_pb = require "Net.Protol.PlayerProtocol_pb"
+PlayerSaveProtocol_pb = require "Net.Protol.PlayerSaveProtocol_pb"
+CustomMsgIDMap = require "Net.Config.CustomMsgIDMap"
+
 -- game data
 DataMessageNames = require "DataCenter.Config.DataMessageNames"
 DataManager = require "DataCenter.DataManager"

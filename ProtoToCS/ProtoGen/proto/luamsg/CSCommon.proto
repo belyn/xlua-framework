@@ -1,0 +1,61 @@
+syntax = "proto2";
+package CSCommon;
+
+
+enum CSProtoCmd
+{
+	Login = 1;
+	Player = 2;
+	Gate = 10;
+}
+
+
+enum C2SLoginProtocol 
+{
+	CmdRequestLogin	= 1;
+	CmdRequestPlayerList = 2;
+	CmdRequestLoadPlayer = 3;
+	CmdRequestCreatePlayer = 4;
+}
+
+enum S2CLoginProtocol 
+{
+	CmdLoginError = 1;
+	CmdPlayerReady = 2;
+	CmdPlayerListResult = 3;
+	CmdPlayerModuleData = 4;
+	CmdBeginLoadData = 5;
+	CmdCreatePlayerError = 6;
+}
+
+
+enum C2SPlayerProtocol 
+{
+	CmdHeartBeat = 1;
+	CmdTalkMsg	= 2;
+	CmdReqTalkHistory = 3;
+	CmdChangeName = 5;
+	CmdChangeHead = 6;
+	CmdReqViewPlayerInfo = 7;
+	CmdReqServerTime = 8; //请求服务器时间
+	CmdReqLoginToken = 9;
+}
+
+enum S2CPlayerProtocol 
+{
+	CmdRetTalkMsg = 1;
+	CmdSyncServerTime = 2;
+	CmdSyncNotice = 3;
+	CmdSyncCityModuleData = 4;
+	CmdErrorCode = 5;
+	CmdSyncActorInfo = 6;
+	CmdSyncViewChange = 7;
+	CmdRetTalkHistory = 8;
+	CmdNewTalkMsg = 9;
+	CmdSyncChatAbandon = 10; //聊天禁言
+	CmdSyncMarqueeNotice = 11;//同步跑马灯公告
+	CmdSyncLoginToken = 12;
+	CmdSyncSystemTip = 13;
+	CmdSyncPlayerBaseData = 15;
+	CmdRetViewPlayerInfo = 16;
+}
