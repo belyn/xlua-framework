@@ -13,14 +13,54 @@ end
 
 -- 客户端=>服务端
 local c2s_config = {
+	-- 网关
 	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GLoginTo)] = GateProtocol_pb.C2GLoginTo,
+	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GSendData)] = GateProtocol_pb.C2GSendData,
+	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GPing)] = GateProtocol_pb.C2GPing,
+
+	-- 登录
+	[CombieMsgId(CSCommon_pb.Login, CSCommon_pb.CmdRequestPlayerList)] = LoginProtocol_pb.RequestPlayerList,
+	[CombieMsgId(CSCommon_pb.Login, CSCommon_pb.CmdRequestLoadPlayer)] = LoginProtocol_pb.RequestLoadPlayer,
+	[CombieMsgId(CSCommon_pb.Login, CSCommon_pb.CmdRequestCreatePlayer)] = LoginProtocol_pb.RequestCreatePlayer,
+
+	-- 游服
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdHeartBeat)] = PlayerProtocol_pb.HeartBeat,
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdTalkMsg)] = PlayerProtocol_pb.ReqTalkMsg,
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdChangeName)] = PlayerProtocol_pb.ChangeName,
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdChangeHead)] = PlayerProtocol_pb.ChangeHead,
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdReqViewPlayerInfo)] = PlayerProtocol_pb.ReqViewPlayerInfo,
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdReqServerTime)] = PlayerProtocol_pb.ReqServerTime,
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdReqLoginToken)] = PlayerProtocol_pb.ReqLoginToken,
 }
 
 -- 服务端=>客户端
 local s2c_config = {
+	-- 网关
 	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CLoginTo)] = GateProtocol_pb.G2CLoginTo,
 	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CSyncKey)] = GateProtocol_pb.G2CSyncKey,
+	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CPing)] = GateProtocol_pb.G2CPing,
+	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CKickout)] = GateProtocol_pb.G2CKickout,
+	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CMatchMap)] = GateProtocol_pb.G2CMatchMap,
+	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CMapKickout)] = GateProtocol_pb.G2CMapKickout,
+	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CPingServerNet)] = GateProtocol_pb.G2CPingServerNet,
+
+	-- 登录
 	[CombieMsgId(CSCommon_pb.Login, CSCommon_pb.CmdLoginError)] = LoginProtocol_pb.LoginError,
+	[CombieMsgId(CSCommon_pb.Login, CSCommon_pb.CmdPlayerListResult)] = LoginProtocol_pb.PlayerListResult,
+	[CombieMsgId(CSCommon_pb.Login, CSCommon_pb.CmdCreatePlayerError)] = LoginProtocol_pb.CreatePlayerError,
+	[CombieMsgId(CSCommon_pb.Login, CSCommon_pb.CmdBeginLoadData)] = LoginProtocol_pb.BeginLoadData,
+	[CombieMsgId(CSCommon_pb.Login, CSCommon_pb.CmdPlayerModuleData)] = LoginProtocol_pb.PlayerModuleData,
+	[CombieMsgId(CSCommon_pb.Login, CSCommon_pb.CmdPlayerReady)] = LoginProtocol_pb.PlayerReady,
+
+	-- 游服
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdRetTalkMsg)] = PlayerProtocol_pb.RetTalkMsg,
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdSyncServerTime)] = PlayerProtocol_pb.SyncServerTime,
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdSyncNotice)] = PlayerProtocol_pb.SyncNotice,
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdErrorCode)] = PlayerProtocol_pb.ErrorCode,
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdRetTalkHistory)] = PlayerProtocol_pb.ChatData,
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdNewTalkMsg)] = PlayerProtocol_pb.SyncTalkMsg,
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdSyncPlayerBaseData)] = PlayerProtocol_pb.SyncPlayerBaseData,
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdRetViewPlayerInfo)] = PlayerProtocol_pb.RetViewPlayerInfo,
 }
 
 local function NewC2SProto(module_id, msg_id)
@@ -40,8 +80,6 @@ end
 return {
 	TranslateMsgId = TranslateMsgId,
 	CombieMsgId = CombieMsgId,
-	C2S = c2s_config,
 	NewC2SProto = NewC2SProto,
-	S2C = s2c_config,
 	NewS2CProto = NewS2CProto,
 }

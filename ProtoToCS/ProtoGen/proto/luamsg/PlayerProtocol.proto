@@ -65,6 +65,13 @@ message ReqTalkHistory{
 	required uint64 chatId				= 3;	//信息Id
 }
 
+message ReqServerTime {
+	
+}
+
+message ReqLoginToken {
+	
+}
 
 /////////////////////////S2C//////////////////////////////
 message PlayerInfo {

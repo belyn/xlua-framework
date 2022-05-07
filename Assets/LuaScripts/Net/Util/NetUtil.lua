@@ -7,44 +7,23 @@ local NetUtil = {}
 local ReceiveSinglePackage = require "Net.Config.ReceiveSinglePackage"
 local ReceiveMsgDefine = require "Net.Config.ReceiveMsgDefine"
 
-local function XOR(seq, msgid, data, start, length)
-	assert(data ~= nil and type(data) == "string")
-	assert(seq ~= nil and type(seq) == "number")
-	assert(msgid ~= nil and type(msgid) == "number")
-	if string.len(data) == 0 then
-		return data
+
+local function CalcPackageKey(tBufferData, nPackageIndex, nRndKey)
+	local tKeyArray = {0xB8, 0x8A}
+	tKeyArray[2] = tKeyArray[2] ~ nRndKey
+	local nBuffSize = #tBufferData
+	for i=1, nBuffSize do
+		tKeyArray[1] = tKeyArray[1] ~ string.byte(tBufferData, i)
+		tKeyArray[2] = tKeyArray[2] ~ tKeyArray[1]
 	end
-	
-	start = start or 1
-	length = length or string.len(data)
-	seq = seq + msgid
-	
-	local output = ""
-	local cur_index = start
-	while cur_index < start + length do
-		local left_length = start + length - cur_index
-		if left_length >= 4 then
-			local tmp = string.unpack("=I4", data, cur_index)
-			tmp = ((tmp ~ seq) & 0xffffffff)
-			output = output..string.pack("=I4", tmp)
-			cur_index = cur_index + 4
-		elseif left_length >= 2 then
-			local tmp = string.unpack("=I2", data, cur_index)
-			tmp = ((tmp ~ seq) & 0xffff)
-			output = output..string.pack("=I2", tmp)
-			cur_index = cur_index + 2
-		elseif left_length >= 1 then
-			local tmp = string.unpack("=I1", data, cur_index)
-			tmp = ((tmp ~ seq) & 0xff)
-			output = output..string.pack("=I1", tmp)
-			cur_index = cur_index + 1
-		end
-	end
-	
-	return output
+
+	local ret = tKeyArray[1] + (tKeyArray[2] << 8 & 0xff00)
+	ret = ret ~ (~nPackageIndex) & 0xffffffff
+	ret = ret ~ (~nBuffSize) & 0xffffffff
+	return ret
 end
 
-local function SerializeMessage(msg_obj, global_seq)
+local function SerializeMessage(msg_obj)
 	local output = ""
 	local send_msg = msg_obj.MsgProto:SerializeToString()
 	
@@ -81,7 +60,7 @@ local function DeserializeMessage(byteArray, start, length)
 	return packages
 end
 
-NetUtil.XOR = XOR
+NetUtil.CalcPackageKey = CalcPackageKey
 NetUtil.SerializeMessage = SerializeMessage
 NetUtil.DeserializeMessage = DeserializeMessage
 

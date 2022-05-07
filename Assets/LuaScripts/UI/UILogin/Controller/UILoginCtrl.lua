@@ -12,17 +12,17 @@ local function OnConnect(self, sender, result, msg)
 	end
 	
 	-- TODO：
-	print("ClientData:GetInstance().account", ClientData:GetInstance().account)
+	print("self.model.account", self.model.account)
     local msg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GLoginTo)
 	msg.server_id = 255
-	msg.login_info.name = ClientData:GetInstance().account.."&X-XY-H"
+	msg.login_info.name = self.model.account.."&X-XY-H"
 	msg.login_info.password = ""
 	msg.login_info.device = "win"
 	msg.login_info.system = ""
 	msg.login_info.language = "zh-CN"
 	msg.login_info.game_version = 68551688
 	msg.login_info.packet_name = "zlslg"
-	HallConnector:GetInstance():SendMessage(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GLoginTo, msg)
+	HallConnector:GetInstance():SendGateMessage(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GLoginTo, msg)
 end
 
 local function OnClose(self, sender, result, msg)
@@ -34,8 +34,8 @@ end
 
 local function ConnectServer(self)
 	HallConnector:GetInstance():Dispose()
-	-- HallConnector:GetInstance():Connect("127.0.0.1", 9588, Bind(self, OnConnect), Bind(self, OnClose))
-	HallConnector:GetInstance():Connect("192.168.8.2", 9588, Bind(self, OnConnect), Bind(self, OnClose))
+	HallConnector:GetInstance():Connect("127.0.0.1", 9588, Bind(self, OnConnect), Bind(self, OnClose))
+	-- HallConnector:GetInstance():Connect("192.168.8.2", 9588, Bind(self, OnConnect), Bind(self, OnClose))
 end
 
 local function LoginServer(self, name, password)

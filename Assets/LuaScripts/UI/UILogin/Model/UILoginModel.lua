@@ -61,15 +61,73 @@ local function OnSelectedSvrChg(self, id)
 	self:UIBroadcast(UIMessageNames.UILOGIN_ON_SELECTED_SVR_CHG)
 end
 
--- 监听选服变动
+-- 协议 begin ---------------------------------------------------
+local function OnProtoG2CSyncKey(self, real_msg_id, msg_proto)
+	print("OnProtoG2CLoginTo", real_msg_id, msg_proto)
+	HallConnector:GetInstance():SetRndKey(msg_proto.nRndKey)
+end
+
+local function OnProtoG2CLoginTo(self, real_msg_id, msg_proto)
+	print("OnProtoG2CLoginTo", real_msg_id, msg_proto)
+end
+
+local function OnProtoLoginError(self, real_msg_id, msg_proto)
+	print("OnProtoLoginError", real_msg_id, msg_proto)
+	if GateProtocol_pb.EGateErrorCode_None ~= msg_proto.errorCode then
+		-- TODO 错误提示
+		return
+	end
+
+	-- 请求角色列表
+	local msg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Login, CSCommon_pb.CmdRequestPlayerList)
+	HallConnector:GetInstance():SendMessage(CSCommon_pb.Login, CSCommon_pb.CmdRequestPlayerList, msg)
+end
+
+local function OnProtoPlayerListResult(self, real_msg_id, msg_proto)
+	print("OnProtoPlayerListResult", real_msg_id, msg_proto)
+	local role_info_list = msg_proto.player_list_result.info
+	if #role_info_list > 0 then
+		-- 请求加载角色, 默认加载第1个角色
+		local msg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Login, CSCommon_pb.CmdRequestLoadPlayer)
+		msg.playerId = role_info_list[1].playerId
+		HallConnector:GetInstance():SendMessage(CSCommon_pb.Login, CSCommon_pb.CmdRequestLoadPlayer, msg)
+		return
+	end
+	-- 请求创建角色
+	local msg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Login, CSCommon_pb.CmdRequestCreatePlayer)
+	msg.sCharName = self.account --角色名
+	msg.nRoleId = 1 -- 角色头像
+	HallConnector:GetInstance():SendMessage(CSCommon_pb.Login, CSCommon_pb.CmdRequestCreatePlayer, msg)
+end
+
+local function OnProtoCreatePlayerError(self, real_msg_id, msg_proto)
+	print("OnProtoCreatePlayerError", real_msg_id, msg_proto)
+	-- TODO 创建角色错误提示
+end
+-- 协议 end ---------------------------------------------------
+
 local function OnAddListener(self)
+	print("UILoginModule.OnAddListener")
 	base.OnAddListener(self)
+	-- 监听选服变动
 	self:AddDataListener(DataMessageNames.ON_LOGIN_SERVER_ID_CHG, OnSelectedSvrChg)
+	-- 协议
+	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CSyncKey, Bind(self, OnProtoG2CSyncKey))
+	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CLoginTo, Bind(self, OnProtoG2CLoginTo))
+	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdLoginError, Bind(self, OnProtoLoginError))
+	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdPlayerListResult, Bind(self, OnProtoPlayerListResult))
+	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdCreatePlayerError, Bind(self, OnProtoCreatePlayerError))
 end
 
 local function OnRemoveListener(self)
+	print("UILoginModule.OnRemoveListener")
 	base.OnRemoveListener(self)
 	self:RemoveDataListener(DataMessageNames.ON_LOGIN_SERVER_ID_CHG, OnSelectedSvrChg)
+	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CSyncKey)
+	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CLoginTo)
+	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdLoginError)
+	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdPlayerListResult)
+	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdCreatePlayerError)
 end
 
 -- 关闭

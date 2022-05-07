@@ -371,6 +371,8 @@ def code_gen_message(message_descriptor, env, containing_type = None):
     enums = []
     for enum_desc in message_descriptor.enum_type:
         enums.append("_M." + code_gen_enum(enum_desc, env))
+        for enum_value in enum_desc.value:
+            env.message.append('_M.%s_%s = %d\n' % (message_descriptor.name, enum_value.name, enum_value.number))
     context('.enum_types = {%s}\n' % ', '.join(enums))
 
     fields = []

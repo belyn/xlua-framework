@@ -137,6 +137,8 @@ _M.PHONE.extensions = {_M.PHONE_PHONES_FIELD}
 
 _M.Person = protobuf.Message(_M.PERSON)
 _M.Phone = protobuf.Message(_M.PHONE)
+_M.Phone_HOME = 2
+_M.Phone_MOBILE = 1
 
 _M.Person.RegisterExtension(_M.PHONE_PHONES_FIELD)
 return _M

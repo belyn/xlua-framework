@@ -66,8 +66,8 @@ message PlayerBaseData {
 
 //聊天模块数据
 message ChatModuleData {
-	required uint32 nDisableTime		= 1; //禁言到期时间
-	required int32 nLastSendTime		= 2; //上次发言时间
+	optional uint32 nDisableTime		= 1; //禁言到期时间
+	optional int32 nLastSendTime		= 2; //上次发言时间
 	optional uint32	nCharFlags			= 3; //封号等标记
 	optional uint32 nGlobalChannel 		= 4; //全服世界聊天频道
 }
