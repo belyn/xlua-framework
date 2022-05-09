@@ -61,6 +61,7 @@ local s2c_config = {
 	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdNewTalkMsg)] = PlayerProtocol_pb.SyncTalkMsg,
 	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdSyncPlayerBaseData)] = PlayerProtocol_pb.SyncPlayerBaseData,
 	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdRetViewPlayerInfo)] = PlayerProtocol_pb.RetViewPlayerInfo,
+	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdSyncLoginToken)] = PlayerProtocol_pb.SyncLoginToken,
 }
 
 local function NewC2SProto(module_id, msg_id)

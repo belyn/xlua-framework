@@ -111,6 +111,7 @@ local function OnAddListener(self)
 	base.OnAddListener(self)
 	-- 监听选服变动
 	self:AddDataListener(DataMessageNames.ON_LOGIN_SERVER_ID_CHG, OnSelectedSvrChg)
+	self:AddDataListener(DataMessageNames.ON_ACCOUNT_INFO_CHG, OnRefresh)
 	-- 协议
 	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CSyncKey, Bind(self, OnProtoG2CSyncKey))
 	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CLoginTo, Bind(self, OnProtoG2CLoginTo))
@@ -122,7 +123,8 @@ end
 local function OnRemoveListener(self)
 	print("UILoginModule.OnRemoveListener")
 	base.OnRemoveListener(self)
-	self:RemoveDataListener(DataMessageNames.ON_LOGIN_SERVER_ID_CHG, OnSelectedSvrChg)
+	self:RemoveDataListener(DataMessageNames.ON_LOGIN_SERVER_ID_CHG)
+	self:RemoveDataListener(DataMessageNames.ON_ACCOUNT_INFO_CHG)
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CSyncKey)
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CLoginTo)
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdLoginError)

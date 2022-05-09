@@ -14,7 +14,7 @@ local function OnConnect(self, sender, result, msg)
 	-- TODO：
 	print("self.model.account", self.model.account)
     local msg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GLoginTo)
-	msg.server_id = 255
+	-- msg.server_id = 255
 	msg.login_info.name = self.model.account.."&X-XY-H"
 	msg.login_info.password = ""
 	msg.login_info.device = "win"
