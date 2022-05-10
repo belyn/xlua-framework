@@ -1,5 +1,5 @@
 --[[
--- added by marvin @ 2012-5-10
+-- added by marvin @ 2022-5-10
 -- 聊天数据
 --]]
 
@@ -11,8 +11,9 @@ local function __init(self)
 end
 
 local function OnLoadData(self, module_data)
-	print("ChatModule.OnLoadData")
-	self.data = PlayerSaveProtocol_pb.ChatModuleData():ParseFromString(module_data)
+	self.data = PlayerSaveProtocol_pb.ChatModuleData()
+	self.data:ParseFromString(module_data)
+	print("ChatModule.OnLoadData", self.data)
 end
 
 local function OnProtoRetTalkMsg(self, real_msg_id, msg_proto)
