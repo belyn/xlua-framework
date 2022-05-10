@@ -40,9 +40,20 @@ end
 local function OnHeartBeatAction(self)
 	print("OnHeartBeatAction")
 
-	local msg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GPing)
-	msg.tick = Time.realtimeSinceStartup
-	HallConnector:GetInstance():SendGateMessage(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GPing, msg)
+	-- ping 网关
+	local msg_ping_gate = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GPing)
+	msg_ping_gate.tick = Time.realtimeSinceStartup * 1000
+	HallConnector:GetInstance():SendGateMessage(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GPing, msg_ping_gate)
+
+	-- ping 游服
+	local msg_ping_game = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GPingServerNet)
+	msg_ping_game.nServerId = self.baseData.curServerId
+	msg_ping_game.tick = Time.realtimeSinceStartup * 1000
+	HallConnector:GetInstance():SendGateMessage(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GPingServerNet, msg_ping_game)
+
+	-- 游服心跳
+	local msg_game_heart = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Player, CSCommon_pb.CmdHeartBeat)
+	HallConnector:GetInstance():SendMessage(CSCommon_pb.Player, CSCommon_pb.CmdHeartBeat, msg_game_heart)
 end
 
 local function OnReady(self)
@@ -88,6 +99,13 @@ end
 
 local function OnProtoG2CPing(self, real_msg_id, msg_proto)
 	print("OnProtoG2CPing", real_msg_id, msg_proto)
+	local cur_tick = Time.realtimeSinceStartup * 1000
+	print(string.format("ping gate cost=%f, cur_tick=%f, req_tick=%f, Time.deltaTime=%f", cur_tick - msg_proto.tick, cur_tick, msg_proto.tick, Time.deltaTime * 1000))
+end
+local function OnProtoG2CPingServerNet(self, real_msg_id, msg_proto)
+	print("OnProtoG2CPingServerNet", real_msg_id, msg_proto)
+	local cur_tick = Time.realtimeSinceStartup * 1000
+	print(string.format("ping game cost=%f, cur_tick=%f, req_tick=%f, Time.deltaTime=%f", cur_tick - msg_proto.req.tick, cur_tick, msg_proto.req.tick, Time.deltaTime * 1000))
 end
 local function OnProtoSyncServerTime(self, real_msg_id, msg_proto)
 	print("OnProtoSyncServerTime", real_msg_id, msg_proto)
@@ -111,6 +129,7 @@ end
 local function AddListener(self)
 	print("Player.AddListener")
 	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CPing, Bind(self, OnProtoG2CPing))
+	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CPingServerNet, Bind(self, OnProtoG2CPingServerNet))
 	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdSyncServerTime, Bind(self, OnProtoSyncServerTime))
 	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdSyncNotice, Bind(self, OnProtoSyncNotice))
 	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdErrorCode, Bind(self, OnProtoErrorCode))
@@ -122,6 +141,7 @@ end
 local function RemoveListener(self)
 	print("Player.RemoveListener")
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CPing)
+	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CPingServerNet)
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdSyncServerTime)
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdSyncNotice)
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdErrorCode)

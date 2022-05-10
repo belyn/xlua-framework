@@ -17,6 +17,7 @@ local c2s_config = {
 	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GLoginTo)] = GateProtocol_pb.C2GLoginTo,
 	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GSendData)] = GateProtocol_pb.C2GSendData,
 	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GPing)] = GateProtocol_pb.C2GPing,
+	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GPingServerNet)] = GateProtocol_pb.C2GPingServerNet,
 
 	-- 登录
 	[CombieMsgId(CSCommon_pb.Login, CSCommon_pb.CmdRequestPlayerList)] = LoginProtocol_pb.RequestPlayerList,

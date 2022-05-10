@@ -61,6 +61,7 @@ message PlayerBaseData {
 	optional uint32			lastLoginTime = 10;
 	optional string			packetName	= 11; //最后一次登录的包名
 	optional uint32 		langIndex	= 12; //多语言Id
+	optional uint32 		curServerId	= 13; //当前游服Id
 }
 
 
