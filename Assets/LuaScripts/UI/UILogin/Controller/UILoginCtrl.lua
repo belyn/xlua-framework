@@ -62,9 +62,9 @@ local function LoginServer(self, name, password)
 	
 	ClientData:GetInstance():SetAccountInfo(name, password)
 	
-	-- TODO
+	-- 发起网络连接，连接成功后就请求登录
+	UserData:GetInstance():Dispose()
 	ConnectServer(self)
-	-- SceneManager:GetInstance():SwitchScene(SceneConfig.HomeScene)
 end
 
 local function ChooseServer(self)

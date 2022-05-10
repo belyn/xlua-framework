@@ -104,6 +104,24 @@ local function OnProtoCreatePlayerError(self, real_msg_id, msg_proto)
 	print("OnProtoCreatePlayerError", real_msg_id, msg_proto)
 	-- TODO 创建角色错误提示
 end
+
+local function OnProtoBeginLoadData(self, real_msg_id, msg_proto)
+	print("OnProtoBeginLoadData", real_msg_id, msg_proto)
+	UserData:GetInstance():OnBeginLoadData(msg_proto)
+end
+
+local function OnProtoPlayerModuleData(self, real_msg_id, msg_proto)
+	print("OnProtoPlayerModuleData", real_msg_id, msg_proto)
+	UserData:GetInstance():OnPlayerModuleData(msg_proto)
+end
+
+local function OnProtoPlayerReady(self, real_msg_id, msg_proto)
+	print("OnProtoPlayerReady", real_msg_id, msg_proto)
+	UserData:GetInstance():OnPlayerReady(msg_proto)
+	-- 切换场景
+	SceneManager:GetInstance():SwitchScene(SceneConfig.HomeScene)
+end
+
 -- 协议 end ---------------------------------------------------
 
 local function OnAddListener(self)
@@ -118,6 +136,9 @@ local function OnAddListener(self)
 	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdLoginError, Bind(self, OnProtoLoginError))
 	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdPlayerListResult, Bind(self, OnProtoPlayerListResult))
 	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdCreatePlayerError, Bind(self, OnProtoCreatePlayerError))
+	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdBeginLoadData, Bind(self, OnProtoBeginLoadData))
+	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdPlayerModuleData, Bind(self, OnProtoPlayerModuleData))
+	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdPlayerReady, Bind(self, OnProtoPlayerReady))
 end
 
 local function OnRemoveListener(self)
@@ -130,6 +151,9 @@ local function OnRemoveListener(self)
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdLoginError)
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdPlayerListResult)
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdCreatePlayerError)
+	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdBeginLoadData)
+	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdPlayerModuleData)
+	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Login, CSCommon_pb.CmdPlayerReady)
 end
 
 -- 关闭

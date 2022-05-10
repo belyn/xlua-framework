@@ -38,6 +38,8 @@ DataManager = require "DataCenter.DataManager"
 ClientData = require "DataCenter.ClientData.ClientData"
 ServerData = require "DataCenter.ServerData.ServerData"
 UserData = require "DataCenter.UserData.UserData"
+Player = require "DataCenter.UserData.Player"
+ChatModule = require "DataCenter.UserData.ChatModule"
 
 -- game config
 LangUtil = require "Config.LangUtil"
