@@ -68,6 +68,9 @@ local function OnReady(self)
 	assert(self.heartBeatTimer == nil)
 	self.heartBeatTimer = TimerManager:GetInstance():GetTimer(15, OnHeartBeatAction, self)
 	self.heartBeatTimer:Start()
+
+	--切换场景
+	SceneManager:GetInstance():SwitchScene(SceneConfig.BattleScene)
 end
 
 local function GetModule(self, module_id)

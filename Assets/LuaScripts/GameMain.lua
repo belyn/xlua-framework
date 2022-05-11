@@ -3,8 +3,7 @@ require "Global.Global"
 
 -- 接入vscode LuaHelper调试
 if Config.Debug then
-	require("LuaPanda").start("127.0.0.1", 8818)
-	LuaPanda.BP()
+	require("LuaPanda").start("localhost", 9818)
 end
 
 -- 定义为全局模块，整个lua程序的入口类
