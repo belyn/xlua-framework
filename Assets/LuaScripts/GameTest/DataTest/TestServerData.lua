@@ -216,13 +216,13 @@ local TestServerData = {
 	},
 }
 
-for i = 1, 1000 do
-	table.insert(TestServerData, {
-		["server_id"] = 10035 + i, 
-		["area_id"] = 10005, 
-		["state"] = math.random(0, 3), 
-		["recommend"] = false, 
-	})
-end
+-- for i = 1, 1000 do
+-- 	table.insert(TestServerData, {
+-- 		["server_id"] = 10035 + i, 
+-- 		["area_id"] = 10005, 
+-- 		["state"] = math.random(0, 3), 
+-- 		["recommend"] = false, 
+-- 	})
+-- end
 
 return TestServerData
