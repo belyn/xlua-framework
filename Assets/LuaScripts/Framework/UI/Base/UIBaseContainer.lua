@@ -50,7 +50,7 @@ end
 -- 记录Component
 local function RecordComponent(self, name, component_class, component)
 	-- 同一个Transform不能挂两个同类型的组件
-	assert(self.components[name][component_class] == nil, "Aready exist component_class : ", component_class.__cname)
+	assert(self.components[name][component_class] == nil, string.format("Aready exist component_class : %s", component_class.__cname))
 	self.components[name][component_class] = component
 end
 

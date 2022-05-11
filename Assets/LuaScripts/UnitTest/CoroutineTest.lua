@@ -15,7 +15,7 @@ local function TestStart(finished_flag)
 		finished_flag["TestStart1"] = true
 	end, 11)
 	-- 说明：以上协程相当于同步调用函数，所以会立即执行函数体并返回，aaa的值马上会变
-	assert(aaa == aaa_record + 11, aaa, aaa_record + 11)
+	assert(aaa == aaa_record + 11, string.format("%d%d", aaa, aaa_record + 11))
 	
 	local bbb = math.random(1, 30)
 	local bbb_record = bbb
