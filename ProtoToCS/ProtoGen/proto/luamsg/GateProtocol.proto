@@ -58,6 +58,7 @@ enum C2GProtocol {
 	CmdC2GChatServerList = 6; //获取世界聊天频道列表
 	CmdC2GMatchMap		= 7; //进入地图, 成功登录游服后才能进入地图
 	CmdC2GPingServerNet	= 8; //客户端检测与游服的ping值
+	CmdC2GLeaveMap		= 9; //离开地图
 }
 
 //网关至客户端协议
@@ -328,6 +329,9 @@ message C2GChatServerList {
 message C2GMatchMap {
 	required uint64 nPlayerId    = 1; //玩家Id
 	optional uint32 nMapId = 2; //地图服Id,指定要匹配到特定的地图Id
+}
+
+message C2GLeaveMap {
 }
 
 message C2GPingServerNet {
