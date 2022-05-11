@@ -68,9 +68,6 @@ local function OnReady(self)
 	assert(self.heartBeatTimer == nil)
 	self.heartBeatTimer = TimerManager:GetInstance():GetTimer(15, OnHeartBeatAction, self)
 	self.heartBeatTimer:Start()
-
-	--切换场景
-	SceneManager:GetInstance():SwitchScene(SceneConfig.BattleScene)
 end
 
 local function GetModule(self, module_id)
@@ -128,6 +125,16 @@ end
 local function OnProtoSyncLoginToken(self, real_msg_id, msg_proto)
 	print("OnProtoSyncLoginToken", real_msg_id, msg_proto)
 end
+local function OnProtoMatchMap(self, real_msg_id, msg_proto)
+	print("OnProtoMatchMap", real_msg_id, msg_proto)
+	if msg_proto.result ~= 0 then
+		print("OnProtoMatchMap error")
+	else
+		print("OnProtoMatchMap complete", msg_proto.matchId)
+		--切换场景
+		SceneManager:GetInstance():SwitchScene(SceneConfig.BattleScene)
+	end
+end
 
 local function AddListener(self)
 	print("Player.AddListener")
@@ -139,6 +146,7 @@ local function AddListener(self)
 	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdSyncPlayerBaseData, Bind(self, OnProtoSyncPlayerBaseData))
 	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdRetViewPlayerInfo, Bind(self, OnProtoRetViewPlayerInfo))
 	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdSyncLoginToken, Bind(self, OnProtoSyncLoginToken))
+	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CMatchMap, Bind(self, OnProtoMatchMap))
 end
 
 local function RemoveListener(self)
@@ -151,6 +159,7 @@ local function RemoveListener(self)
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdSyncPlayerBaseData)
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdRetViewPlayerInfo)
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdSyncLoginToken)
+	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CMatchMap)
 end
 
 Player.__init = __init
