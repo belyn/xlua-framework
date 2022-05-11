@@ -1,6 +1,12 @@
 -- 全局模块
 require "Global.Global"
-	
+
+-- 接入vscode LuaHelper调试
+if Config.Debug then
+	require("LuaPanda").start("127.0.0.1", 8818)
+	LuaPanda.BP()
+end
+
 -- 定义为全局模块，整个lua程序的入口类
 GameMain = {};
 

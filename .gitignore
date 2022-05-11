@@ -26,3 +26,4 @@ Assets/Plugins/Android.meta
 /.vsconfig
 /Logs
 *.pyc
+/Assets/LuaScripts/.vscode
