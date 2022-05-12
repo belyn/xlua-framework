@@ -6,7 +6,11 @@
 local UITestMainCtrl = BaseClass("UITestMainCtrl", UIBaseCtrl)
 
 local function StartFighting(self)
-	SceneManager:GetInstance():SwitchScene(SceneConfig.BattleScene)
+	--发送协议进行战斗匹配
+	local msg_match_map = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GMatchMap)
+	msg_match_map.nPlayerId = 0
+	msg_match_map.nMapId = 0
+	HallConnector:GetInstance():SendGateMessage(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GMatchMap, msg_match_map)
 end
 
 local function Logout(self)
