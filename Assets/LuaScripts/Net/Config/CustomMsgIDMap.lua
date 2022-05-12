@@ -19,6 +19,7 @@ local c2s_config = {
 	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GPing)] = GateProtocol_pb.C2GPing,
 	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GPingServerNet)] = GateProtocol_pb.C2GPingServerNet,
 	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GMatchMap)] = GateProtocol_pb.C2GMatchMap,
+	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GLeaveMap)] = GateProtocol_pb.C2GLeaveMap,
 
 	-- 登录
 	[CombieMsgId(CSCommon_pb.Login, CSCommon_pb.CmdRequestPlayerList)] = LoginProtocol_pb.RequestPlayerList,
@@ -45,7 +46,6 @@ local s2c_config = {
 	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CMatchMap)] = GateProtocol_pb.G2CMatchMap,
 	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CMapKickout)] = GateProtocol_pb.G2CMapKickout,
 	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CPingServerNet)] = GateProtocol_pb.G2CPingServerNet,
-	[CombieMsgId(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CMatchMap)] = GateProtocol_pb.G2CMatchMap,
 
 	-- 登录
 	[CombieMsgId(CSCommon_pb.Login, CSCommon_pb.CmdLoginError)] = LoginProtocol_pb.LoginError,
