@@ -62,8 +62,7 @@ local function OnReceivePackage(self, receive_bytes)
 		self.readBuff:setLen(0)
 		self.readBuff:writeBuf(msgData)
 		
-		self.readBuff:setPos(1)
-		assert(self.readBuff:getAvailable() == nLeft)
+		assert(self.readBuff:getLen() == nLeft)
 	else
 		self.readBuff:setPos(1)
 		self.readBuff:setLen(0)

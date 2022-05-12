@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using CustomDataStruct;
 using System.Threading;
-using XLua;
 
 namespace Networks
 {
@@ -25,15 +24,9 @@ namespace Networks
         protected int mMaxBytesOnceSent = 0;
         protected int mMaxReceiveBuffer = 0;
 
-        protected Socket mClientSocket = null;
         protected string mIp;
         protected int mPort;
         protected volatile SOCKSTAT mStatus = SOCKSTAT.CLOSED;
-
-
-        private Thread mReceiveThread = null;
-        private volatile bool mReceiveWork = false;
-        
 
         public HjNetworkBase(int maxBytesOnceSent = 1024 * 512, int maxReceiveBuffer = 1024 * 1024 * 2)
         {
@@ -49,14 +42,6 @@ namespace Networks
         public virtual void Dispose()
         {
             Close();
-        }
-
-        public Socket ClientSocket
-        {
-            get
-            {
-                return mClientSocket;
-            }
         }
 
         public void SetHostPort(string ip, int port)
@@ -106,39 +91,20 @@ namespace Networks
 
         public virtual void StartAllThread()
         {
-            if (mReceiveThread == null)
-            {
-                mReceiveThread = new Thread(ReceiveThread);
-                mReceiveWork = true;
-                mReceiveThread.Start(null);
-            }
         }
 
         public virtual void StopAllThread()
         {
-
-            if (mReceiveThread != null)
-            {
-                mReceiveWork = false;
-                mReceiveThread.Join();
-                mReceiveThread = null;
-            }
         }
 
         protected virtual void DoClose()
         {
-            mClientSocket.Close();
-            if (mClientSocket.Connected)
-            {
-                throw new InvalidOperationException("Should close socket first!");
-            }
-            mClientSocket = null;
             StopAllThread();
         }
 
         public virtual void Close()
         {
-            if (mClientSocket == null) return;
+            if (SOCKSTAT.CLOSED == mStatus) return;
 
             mStatus = SOCKSTAT.CLOSED;
             try
@@ -169,46 +135,7 @@ namespace Networks
         }
 
         protected abstract void DoReceive(StreamBuffer receiveStreamBuffer, ref int bufferCurLen);
-        private void ReceiveThread(object o)
-        {
-            StreamBuffer receiveStreamBuffer = StreamBufferPool.GetStream(mMaxReceiveBuffer, false, true);
-            int bufferCurLen = 0;
-            while (mReceiveWork)
-            {
-                try
-                {
-                    if (!mReceiveWork) break;
-                    if (mClientSocket != null)
-                    {
-                        int bufferLeftLen = receiveStreamBuffer.size - bufferCurLen;
-                        int readLen = mClientSocket.Receive(receiveStreamBuffer.GetBuffer(), bufferCurLen, bufferLeftLen, SocketFlags.None);
-                        if (readLen == 0) throw new ObjectDisposedException("DisposeEX", "receive from server 0 bytes,closed it");
-                        if (readLen < 0) throw new Exception("Unknow exception, readLen < 0" + readLen);
-
-                        bufferCurLen += readLen;
-                        DoReceive(receiveStreamBuffer, ref bufferCurLen);
-                        if (bufferCurLen == receiveStreamBuffer.size)
-                            throw new Exception("Receive from sever no enough buff size:" + bufferCurLen);
-                    }
-                }
-                catch (ObjectDisposedException e)
-                {
-                    ReportSocketClosed(ESocketError.ERROR_3, e.Message);
-                    break;
-                }
-                catch (Exception e)
-                {
-                    ReportSocketClosed(ESocketError.ERROR_4, e.Message);
-                    break;
-                }
-            }
-
-            StreamBufferPool.RecycleStream(receiveStreamBuffer);
-            if (mStatus == SOCKSTAT.CONNECTED)
-            {
-                mStatus = SOCKSTAT.CLOSED;
-            }
-        }
+        
         
         protected void AddNetworkEvt(HjNetworkEvt evt)
         {

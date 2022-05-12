@@ -16,25 +16,35 @@ namespace Networks
         private HjSemaphore mSendSemaphore = null;
 
         protected IMessageQueue mSendMsgQueue = null;
-        protected StreamBuffer mRecvBuff = null;
-        protected int mCurRectBuffIndex = 0;
+
+        protected Socket mClientSocket = null;
+
+        private Thread mReceiveThread = null;
+        private volatile bool mReceiveWork = false;
+        private IMessageQueue mReceiveMsgQueue = null;
+        private List<byte[]> mTempMsgList = null;
 
         public HjTcpNetwork(int maxBytesOnceSent = 1024 * 100, int maxReceiveBuffer = 1024 * 512) : base(maxBytesOnceSent, maxReceiveBuffer)
         {
             mSendSemaphore = new HjSemaphore();
             mSendMsgQueue = new MessageQueue();
-            mRecvBuff = StreamBufferPool.GetStream(mMaxReceiveBuffer * 2, true, true);
+            mReceiveMsgQueue = new MessageQueue();
+            mTempMsgList = new List<byte[]>();
         }
 
         public override void Dispose()
         {
             mSendMsgQueue.Dispose();
-            mRecvBuff.Dispose();
+            mReceiveMsgQueue.Dispose();
             base.Dispose();
         }
 
         protected override void DoConnect()
         {
+            if (mStatus != SOCKSTAT.CLOSED)
+            {
+                throw new Exception("HjTcpNetworld DoConnect error the mStatus expect CLOSED");
+            }
             String newServerIp = "";
             AddressFamily newAddressFamily = AddressFamily.InterNetwork;
             IPv6SupportMidleware.getIPType(mIp, mPort.ToString(), out newServerIp, out newAddressFamily);
@@ -43,7 +53,6 @@ namespace Networks
                 mIp = newServerIp;
             }
 
-            mCurRectBuffIndex = 0;
             mClientSocket = new Socket(newAddressFamily, SocketType.Stream, ProtocolType.Tcp);
             mClientSocket.BeginConnect(mIp, mPort, (IAsyncResult ia) =>
             {
@@ -52,18 +61,31 @@ namespace Networks
             }, null);
             mStatus = SOCKSTAT.CONNECTING;
         }
-        
+
         protected override void DoClose()
         {
             // 关闭socket，Tcp下要等待现有数据发送、接受完成
             // https://msdn.microsoft.com/zh-cn/library/system.net.sockets.socket.shutdown(v=vs.90).aspx
             // mClientSocket.Shutdown(SocketShutdown.Both);
+            mClientSocket.Close();
+            if (mClientSocket.Connected)
+            {
+                throw new InvalidOperationException("Should close socket first!");
+            }
+            mClientSocket = null;
             base.DoClose();
         }
 
         public override void StartAllThread()
         {
             base.StartAllThread();
+
+            if (mReceiveThread == null)
+            {
+                mReceiveThread = new Thread(ReceiveThread);
+                mReceiveWork = true;
+                mReceiveThread.Start(null);
+            }
 
             if (mSendThread == null)
             {
@@ -76,6 +98,15 @@ namespace Networks
         public override void StopAllThread()
         {
             base.StopAllThread();
+
+            mReceiveMsgQueue.Dispose();
+            if (mReceiveThread != null)
+            {
+                mReceiveWork = false;
+                mReceiveThread.Join();
+                mReceiveThread = null;
+            }
+
             //先把队列清掉
             mSendMsgQueue.Dispose();
 
@@ -142,7 +173,47 @@ namespace Networks
                     workList.Clear();
                 }
             }
-            
+
+            if (mStatus == SOCKSTAT.CONNECTED)
+            {
+                mStatus = SOCKSTAT.CLOSED;
+            }
+        }
+        private void ReceiveThread(object o)
+        {
+            StreamBuffer receiveStreamBuffer = StreamBufferPool.GetStream(mMaxReceiveBuffer, false, true);
+            int bufferCurLen = 0;
+            while (mReceiveWork)
+            {
+                try
+                {
+                    if (!mReceiveWork) break;
+                    if (mClientSocket != null)
+                    {
+                        int bufferLeftLen = receiveStreamBuffer.size - bufferCurLen;
+                        int readLen = mClientSocket.Receive(receiveStreamBuffer.GetBuffer(), bufferCurLen, bufferLeftLen, SocketFlags.None);
+                        if (readLen == 0) throw new ObjectDisposedException("DisposeEX", "receive from server 0 bytes,closed it");
+                        if (readLen < 0) throw new Exception("Unknow exception, readLen < 0" + readLen);
+
+                        bufferCurLen += readLen;
+                        DoReceive(receiveStreamBuffer, ref bufferCurLen);
+                        if (bufferCurLen == receiveStreamBuffer.size)
+                            throw new Exception("Receive from sever no enough buff size:" + bufferCurLen);
+                    }
+                }
+                catch (ObjectDisposedException e)
+                {
+                    ReportSocketClosed(ESocketError.ERROR_3, e.Message);
+                    break;
+                }
+                catch (Exception e)
+                {
+                    ReportSocketClosed(ESocketError.ERROR_4, e.Message);
+                    break;
+                }
+            }
+
+            StreamBufferPool.RecycleStream(receiveStreamBuffer);
             if (mStatus == SOCKSTAT.CONNECTED)
             {
                 mStatus = SOCKSTAT.CLOSED;
@@ -153,30 +224,9 @@ namespace Networks
         {
             try
             {
-                lock (mRecvBuff)
-                {
-                    byte[] data = streamBuffer.GetBuffer();
-                    int start = 0;
-                    streamBuffer.ResetStream();
-                    if (bufferCurLen > 0)
-                    {
-                        int nRealRecvLen = mRecvBuff.size - mCurRectBuffIndex;
-                        if (nRealRecvLen > bufferCurLen)
-                        {
-                            nRealRecvLen = bufferCurLen;
-                        }
-
-                        mRecvBuff.CopyFrom(data, start, mCurRectBuffIndex, nRealRecvLen);
-                        start += nRealRecvLen;
-                        mCurRectBuffIndex += nRealRecvLen;
-                    }
-
-                    bufferCurLen -= start;
-                    if (bufferCurLen > 0)
-                    {
-                        streamBuffer.CopyFrom(data, start, 0, bufferCurLen);
-                    }
-                }
+                byte[] buf = streamBuffer.ToArray(0, bufferCurLen);
+                bufferCurLen = 0;
+                mReceiveMsgQueue.Add(buf);
             }
             catch (Exception ex)
             {
@@ -187,17 +237,19 @@ namespace Networks
         //业务线程调用
         public override void UpdateNetwork()
         {
-            if(mCurRectBuffIndex > 0)
+            if (!mReceiveMsgQueue.Empty())
             {
-                int fromIndex = 0;
-                byte[] tempBuff = null;
+                mReceiveMsgQueue.MoveTo(mTempMsgList);
+
                 try
                 {
-                    fromIndex = mCurRectBuffIndex;
-                    tempBuff = mRecvBuff.ToArray(0, fromIndex);
-                    if (ReceivePkgHandle != null)
+                    for (int i = 0; i < mTempMsgList.Count; ++i)
                     {
-                        ReceivePkgHandle(tempBuff);
+                        var objMsg = mTempMsgList[i];
+                        if (ReceivePkgHandle != null)
+                        {
+                            ReceivePkgHandle(objMsg);
+                        }
                     }
                 }
                 catch (Exception e)
@@ -206,15 +258,11 @@ namespace Networks
                 }
                 finally
                 {
-                    lock (mRecvBuff)
+                    for (int i = 0; i < mTempMsgList.Count; ++i)
                     {
-                        if (mCurRectBuffIndex < fromIndex) throw new Exception("what the hell! the receive buff is fucking changed");
-                        mCurRectBuffIndex -= fromIndex;
+                        StreamBufferPool.RecycleBuffer(mTempMsgList[i]);
                     }
-                    if (tempBuff != null)
-                    {
-                        StreamBufferPool.RecycleBuffer(tempBuff);
-                    }
+                    mTempMsgList.Clear();
                 }
             }
             base.UpdateNetwork();

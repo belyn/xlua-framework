@@ -76,6 +76,7 @@ local function GetModule(self, module_id)
 end
 
 local function OnLoadData(self, module_data)
+	assert(self.baseData == nil)
 	self.baseData = PlayerSaveProtocol_pb.PlayerBaseData()
 	self.baseData:ParseFromString(module_data)
 	print("Player.OnLoadData", self.baseData)

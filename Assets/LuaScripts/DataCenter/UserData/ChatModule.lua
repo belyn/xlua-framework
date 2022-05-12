@@ -11,6 +11,7 @@ local function __init(self)
 end
 
 local function OnLoadData(self, module_data)
+	assert(self.data == nil)
 	self.data = PlayerSaveProtocol_pb.ChatModuleData()
 	self.data:ParseFromString(module_data)
 	print("ChatModule.OnLoadData", self.data)
