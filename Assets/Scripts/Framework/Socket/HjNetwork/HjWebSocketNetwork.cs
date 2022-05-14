@@ -4,11 +4,12 @@ using CustomDataStruct;
 using System.Threading;
 using System.Collections.Generic;
 using XLua;
+using WebSocketSharp;
 
 namespace Networks
 {
     [Hotfix]
-    public class HjTcpNetwork : HjNetworkBase
+    public class HjWebSocketNetwork: HjNetworkBase
     {
         public Action<byte[]> ReceivePkgHandle = null;
         private Thread mSendThread = null;
@@ -17,14 +18,12 @@ namespace Networks
 
         protected IMessageQueue mSendMsgQueue = null;
 
-        protected Socket mClientSocket = null;
+        protected WebSocket mClientSocket = null;
 
-        private Thread mReceiveThread = null;
-        private volatile bool mReceiveWork = false;
         private IMessageQueue mReceiveMsgQueue = null;
         private List<byte[]> mTempMsgList = null;
 
-        public HjTcpNetwork(int maxBytesOnceSent = 1024 * 100, int maxReceiveBuffer = 1024 * 512) : base(maxBytesOnceSent, maxReceiveBuffer)
+        public HjWebSocketNetwork(int maxBytesOnceSent = 1024 * 100, int maxReceiveBuffer = 1024 * 512) : base(maxBytesOnceSent, maxReceiveBuffer)
         {
             mSendSemaphore = new HjSemaphore();
             mSendMsgQueue = new MessageQueue();
@@ -43,35 +42,46 @@ namespace Networks
         {
             if (mStatus != SOCKSTAT.CLOSED)
             {
-                throw new Exception("HjTcpNetworld DoConnect error the mStatus expect CLOSED");
+                throw new Exception("HjWebSocketNetwork DoConnect error the mStatus expect CLOSED");
             }
-            String newServerIp = "";
-            AddressFamily newAddressFamily = AddressFamily.InterNetwork;
-            IPv6SupportMidleware.getIPType(mIp, mPort.ToString(), out newServerIp, out newAddressFamily);
-            if (!string.IsNullOrEmpty(newServerIp))
-            {
-                mIp = newServerIp;
-            }
-
-            mClientSocket = new Socket(newAddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            mClientSocket.BeginConnect(mIp, mPort, (IAsyncResult ia) =>
-            {
-                mClientSocket.EndConnect(ia);
-                OnConnected();
-            }, null);
+            mClientSocket = new WebSocket("ws://" + mIp + ":" + mPort, "chat");
+            mClientSocket.OnOpen += MClientSocket_OnOpen;
+            mClientSocket.OnError += MClientSocket_OnError;
+            mClientSocket.OnMessage += MClientSocket_OnMessage;
+            mClientSocket.OnClose += MClientSocket_OnClose;
             mStatus = SOCKSTAT.CONNECTING;
+            mClientSocket.ConnectAsync(); 
+        }
+
+        private void MClientSocket_OnClose(object sender, CloseEventArgs e)
+        {
+            Logger.Log("HjWebSocketNetwork, code={0}, reason={1}", e.Code, e.Reason);
+            Close();
+        }
+
+        private void MClientSocket_OnMessage(object sender, MessageEventArgs e)
+        {
+            if(e.IsBinary && e.RawData != null && e.RawData.Length > 0)
+            {
+                mReceiveMsgQueue.Add(e.RawData);
+            } 
+        }
+
+        private void MClientSocket_OnError(object sender, ErrorEventArgs e)
+        {
+            Logger.LogError(string.Format("HjWebSocketNetwork OnError : {0}", e.Message));
+        }
+
+        private void MClientSocket_OnOpen(object sender, EventArgs e)
+        {
+            OnConnected();
         }
 
         protected override void DoClose()
         {
-            // 关闭socket，Tcp下要等待现有数据发送、接受完成
-            // https://msdn.microsoft.com/zh-cn/library/system.net.sockets.socket.shutdown(v=vs.90).aspx
-            // mClientSocket.Shutdown(SocketShutdown.Both);
-            mClientSocket.Close();
-            if (mClientSocket.Connected)
-            {
-                throw new InvalidOperationException("Should close socket first!");
-            }
+            Logger.Log("HjWebSocketNetword, DoClose, 1");
+            mClientSocket.Close(CloseStatusCode.Abnormal);
+            Logger.Log("HjWebSocketNetword, DoClose, 2");
             mClientSocket = null;
             base.DoClose();
         }
@@ -79,13 +89,6 @@ namespace Networks
         public override void StartAllThread()
         {
             base.StartAllThread();
-
-            if (mReceiveThread == null)
-            {
-                mReceiveThread = new Thread(ReceiveThread);
-                mReceiveWork = true;
-                mReceiveThread.Start(null);
-            }
 
             if (mSendThread == null)
             {
@@ -100,12 +103,6 @@ namespace Networks
             base.StopAllThread();
 
             mReceiveMsgQueue.Dispose();
-            if (mReceiveThread != null)
-            {
-                mReceiveWork = false;
-                mReceiveThread.Join();
-                mReceiveThread = null;
-            }
 
             //先把队列清掉
             mSendMsgQueue.Dispose();
@@ -130,7 +127,7 @@ namespace Networks
                     break;
                 }
 
-                if (mClientSocket == null || !mClientSocket.Connected)
+                if (mClientSocket == null)
                 {
                     continue;
                 }
@@ -149,7 +146,7 @@ namespace Networks
                         var msgObj = workList[k];
                         if (mSendWork)
                         {
-                            mClientSocket.Send(msgObj, msgObj.Length, SocketFlags.None);
+                            mClientSocket.Send(msgObj);
                         }
                     }
                 }
@@ -179,47 +176,6 @@ namespace Networks
                 mStatus = SOCKSTAT.CLOSED;
             }
         }
-        private void ReceiveThread(object o)
-        {
-            StreamBuffer receiveStreamBuffer = StreamBufferPool.GetStream(mMaxReceiveBuffer, false, true);
-            int bufferCurLen = 0;
-            while (mReceiveWork)
-            {
-                try
-                {
-                    if (!mReceiveWork) break;
-                    if (mClientSocket != null)
-                    {
-                        int bufferLeftLen = receiveStreamBuffer.size - bufferCurLen;
-                        int readLen = mClientSocket.Receive(receiveStreamBuffer.GetBuffer(), bufferCurLen, bufferLeftLen, SocketFlags.None);
-                        if (readLen == 0) throw new ObjectDisposedException("DisposeEX", "receive from server 0 bytes,closed it");
-                        if (readLen < 0) throw new Exception("Unknow exception, readLen < 0" + readLen);
-
-                        bufferCurLen += readLen;
-                        DoReceive(receiveStreamBuffer, ref bufferCurLen);
-                        if (bufferCurLen == receiveStreamBuffer.size)
-                            throw new Exception("Receive from sever no enough buff size:" + bufferCurLen);
-                    }
-                }
-                catch (ObjectDisposedException e)
-                {
-                    ReportSocketClosed(ESocketError.ERROR_3, e.Message);
-                    break;
-                }
-                catch (Exception e)
-                {
-                    ReportSocketClosed(ESocketError.ERROR_4, e.Message);
-                    break;
-                }
-            }
-
-            StreamBufferPool.RecycleStream(receiveStreamBuffer);
-            if (mStatus == SOCKSTAT.CONNECTED)
-            {
-                mStatus = SOCKSTAT.CLOSED;
-            }
-        }
-
         private void DoReceive(StreamBuffer streamBuffer, ref int bufferCurLen)
         {
             try
@@ -277,12 +233,12 @@ namespace Networks
     }
 
 #if UNITY_EDITOR
-    public static class HjTcpNetworkExporter
+    public static class HjWebSocketNetworkExporter
     {
         [LuaCallCSharp]
         public static List<Type> LuaCallCSharp = new List<Type>()
         {
-            typeof(HjTcpNetwork),
+            typeof(HjWebSocketNetwork),
         };
 
         [CSharpCallLua]

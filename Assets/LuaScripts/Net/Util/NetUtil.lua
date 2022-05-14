@@ -34,7 +34,7 @@ local function SerializeMessage(msg_obj)
 end
 
 local PackageHeaderLen = 4
-local function DeserializeMessage(byteArray, start, length)
+local function DeserializeMessage(byteArray)
 	local packages = {}
 	while byteArray:getAvailable() >= PackageHeaderLen do
 		local real_msg_id = byteArray:readUShort()

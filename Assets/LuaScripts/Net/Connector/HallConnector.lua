@@ -88,6 +88,7 @@ end
 local function Connect(self, host_ip, host_port, on_connect, on_close)
 	if not self.hallSocket then
 		self.hallSocket = CS.Networks.HjTcpNetwork()
+		-- self.hallSocket = CS.Networks.HjWebSocketNetwork()
 		self.hallSocket.ReceivePkgHandle = Bind(self, OnReceivePackage)
 	end
 	self.readBuff:setPos(1)

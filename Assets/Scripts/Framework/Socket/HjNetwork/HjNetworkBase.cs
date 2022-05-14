@@ -134,8 +134,6 @@ namespace Networks
             }
         }
 
-        protected abstract void DoReceive(StreamBuffer receiveStreamBuffer, ref int bufferCurLen);
-        
         
         protected void AddNetworkEvt(HjNetworkEvt evt)
         {
