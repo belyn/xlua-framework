@@ -23,23 +23,23 @@ local function LateUpdate(self)
 	end
 	
 	if self.chara_ctrl.isGrounded and CS.ETCInput.GetAxis("Vertical") ~= 0 then
-		self.anim_ctrl:CrossFade("soldierRun")
+		self.anim_ctrl:CrossFade("Running (3)")
 	end
 	
 	if self.chara_ctrl.isGrounded and CS.ETCInput.GetAxis("Vertical") == 0 and CS.ETCInput.GetAxis("Horizontal") == 0 then
-		self.anim_ctrl:CrossFade("soldierIdleRelaxed")
+		self.anim_ctrl:CrossFade("Idle 1")
 	end
 	
 	if not self.chara_ctrl.isGrounded then
-		self.anim_ctrl:CrossFade("soldierFalling")
+		self.anim_ctrl:CrossFade("Falling")
 	end
 	
 	if self.chara_ctrl.isGrounded and CS.ETCInput.GetAxis("Vertical") == 0 and CS.ETCInput.GetAxis("Horizontal") > 0 then
-		self.anim_ctrl:CrossFade("soldierSpinRight")
+		self.anim_ctrl:CrossFade("Running (1)")
 	end
 	
 	if self.chara_ctrl.isGrounded and CS.ETCInput.GetAxis("Vertical") == 0 and CS.ETCInput.GetAxis("Horizontal") < 0 then
-		self.anim_ctrl:CrossFade("soldierSpinLeft")
+		self.anim_ctrl:CrossFade("Running (2)")
 	end
 end
 
