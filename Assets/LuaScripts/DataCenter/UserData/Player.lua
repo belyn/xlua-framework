@@ -132,7 +132,6 @@ local function OnProtoMatchMap(self, real_msg_id, msg_proto)
 		print("OnProtoMatchMap error")
 	else
 		print("OnProtoMatchMap complete", msg_proto.matchId)
-		--切换场景
 		SceneManager:GetInstance():SwitchScene(SceneConfig.BattleScene)
 	end
 end

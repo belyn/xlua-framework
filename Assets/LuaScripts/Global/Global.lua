@@ -102,6 +102,9 @@ EffectManager = require "Framework.Resource.Effect.EffectManager"
 -- net
 HallConnector = require "Net.Connector.HallConnector"
 
+--游戏逻辑
+MapManager = require "GameLogic.Manager.MapManager"
+
 -- 单例类初始化
 UIManager:GetInstance()
 DataManager:GetInstance()
@@ -111,3 +114,4 @@ SceneManager:GetInstance()
 AtlasManager:GetInstance()
 LogicUpdater:GetInstance()
 HallConnector:GetInstance()
+MapManager:GetInstance()

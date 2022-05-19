@@ -27,7 +27,7 @@ end
 -- 准备工作
 local function OnComplete(self)
 	base.OnComplete(self)
-	
+	MapManager:GetInstance():OpenBattleScene()
 	-- 创建角色
 	local chara = GameObjectPool:GetInstance():GetGameObjectAsync(chara_res_path, function(inst)
 		if IsNull(inst) then
@@ -56,6 +56,7 @@ end
 local function OnLeave(self)
 	self.charaAnim = nil
 	UIManager:GetInstance():CloseWindow(UIWindowNames.UIBattleMain)
+	MapManager:GetInstance():CloseBattleScene()
 	base.OnLeave(self)
 end
 
