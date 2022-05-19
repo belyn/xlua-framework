@@ -10,6 +10,7 @@ message G2SRegisterServerResult {
 	required bool result 		= 1;
 	repeated uint64 server_ids 	= 2; //其他注册到网关的服务器Id
 }
+////////////////////////////Logic<--->Gate///////////////////////////////
 
 //网关至逻辑服协议
 enum G2SProtocol {
@@ -48,6 +49,10 @@ enum S2GProtocol  {
 	CmdS2GSendChatMsg 			= 102; //发送世界聊天消息
 	CmdS2GChatHistory 			= 103; //世界聊天历史消息
 }
+
+////////////////////////////Logic<--->Gate///////////////////////////////
+
+////////////////////////////Client<--->Gate///////////////////////////////
 
 //客户端至网关协议
 enum C2GProtocol {
@@ -112,7 +117,6 @@ enum EGateErrorCode {
 	EGateErrorCode_PlayerNotFound			= 301; //玩家不存在
 }
 
-
 message LoginInfo {
 	required string	name			= 1;
 	required string	password		= 2;
@@ -122,6 +126,9 @@ message LoginInfo {
 	required uint32	game_version	= 6;
 	optional string packet_name		= 7; //包名
 }
+
+////////////////////////////Client<--->Gate///////////////////////////////
+
 
 ////////////////////////////Account<--->Gate///////////////////////////////
 

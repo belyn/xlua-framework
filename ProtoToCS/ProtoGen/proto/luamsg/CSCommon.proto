@@ -6,9 +6,9 @@ enum CSProtoCmd
 {
 	Login = 1;
 	Player = 2;
+	Scene = 3;
 	Gate = 10;
 }
-
 
 enum C2SLoginProtocol 
 {
@@ -46,10 +46,9 @@ enum S2CPlayerProtocol
 	CmdRetTalkMsg = 1;
 	CmdSyncServerTime = 2;
 	CmdSyncNotice = 3;
-	CmdSyncCityModuleData = 4;
+
 	CmdErrorCode = 5;
-	CmdSyncActorInfo = 6;
-	CmdSyncViewChange = 7;
+	
 	CmdRetTalkHistory = 8;
 	CmdNewTalkMsg = 9;
 	CmdSyncChatAbandon = 10; //聊天禁言
