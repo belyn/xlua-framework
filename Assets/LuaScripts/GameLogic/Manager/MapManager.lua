@@ -5,7 +5,6 @@
 
 local MapState = {--管理器状态
 	None = 0,
-	CreateScene = 1,
 	SceneReady = 2,
 	MainRoleReady = 3,
 	Playing = 4,
@@ -26,8 +25,6 @@ end
 local function Update(self)
 	if self.state == MapState.None then
 		self:ProcessNone()
-	elseif self.state == MapState.CreateScene then
-		self:ProcessCreateScene()
 	elseif self.state == MapState.SceneReady then
 		self:ProcessSceneReady()
 	elseif self.state == MapState.MainRoleReady then
@@ -53,10 +50,6 @@ end
 local function ProcessNone(self)
 end
 
---CreateScene状态处理逻辑
-local function ProcessCreateScene(self)
-end
-
 --SceneReady状态处理逻辑
 local function ProcessSceneReady(self)
 end
@@ -71,20 +64,27 @@ end
 
 --Playing状态处理逻辑
 local function ProcessPlaying(self)
+	for i, eventList in ipairs(self.scene_event_datas) do
+		for i, event in ipairs(eventList.detaillist) do
+			self:ProcessSceneEvent(event)
+		end
+	end
+	self.scene_event_datas = {}
+
 	for actorId, actor in pairs(self.actor_list) do --进行update
 		actor:Update()
 	end
 end
 
---创建战斗场景
-local function CreateBattleScene(self)
-	assert(self.state == MapState.None, 'OpenBattleScene error state ' .. self.state)
-	self.state = MapState.CreateScene
+local function ProcessSceneEvent(self, event)
+	if event.SceneEventType == SceneProtocol_pb.SceneEventType_EnterView then
+		self:CreateVatar(event.enterView)
+	end
 end
 
 --开启战斗场景
 local function OpenBattleScene(self)
-	assert(self.state == MapState.CreateScene, 'OpenBattleScene error state ' .. self.state)
+	assert(self.state == MapState.None, 'OpenBattleScene error state ' .. self.state)
 	self.state = MapState.SceneReady
 	if self.main_rold_data then
 		self.state = MapState.MainRoleReady
@@ -122,10 +122,10 @@ MapManager.Update = Update
 MapManager.Dispose = Dispose
 MapManager.ResetData = ResetData
 MapManager.ProcessNone = ProcessNone
-MapManager.ProcessCreateScene = ProcessCreateScene
 MapManager.ProcessSceneReady = ProcessSceneReady
 MapManager.ProcessMainRoleReady = ProcessMainRoleReady
 MapManager.ProcessPlaying = ProcessPlaying
+MapManager.ProcessSceneEvent = ProcessSceneEvent
 MapManager.CreateBattleScene = CreateBattleScene
 MapManager.OpenBattleScene = OpenBattleScene
 MapManager.MainRoleEnterScene = MainRoleEnterScene

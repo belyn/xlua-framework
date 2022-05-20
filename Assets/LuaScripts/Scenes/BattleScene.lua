@@ -18,8 +18,6 @@ local function OnCreate(self)
 	self:AddPreloadResource(police_res_path, typeof(CS.UnityEngine.GameObject), 5)
 	self:AddPreloadResource(prisoner_res_path, typeof(CS.UnityEngine.GameObject), 10)
 	self:AddPreloadResource(UIConfig[UIWindowNames.UIBattleMain].PrefabPath, typeof(CS.UnityEngine.GameObject), 1)
-	
-	MapManager:GetInstance():CreateBattleScene()
 end
 
 -- 准备工作

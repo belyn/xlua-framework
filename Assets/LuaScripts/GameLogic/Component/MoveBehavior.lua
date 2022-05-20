@@ -63,7 +63,7 @@ local function OnCreate(self)
 			do return end
 		end
 		inst.transform:SetParent(chara_root.transform)
-		inst.transform.localPosition = Vector3.New(-7.86, 50, 5.85)
+		inst.transform.localPosition = self.actor:GetPosition()
         self.chara_inst = inst
         self.chara_ctrl = inst:GetComponentInChildren(typeof(CS.UnityEngine.CharacterController))
         self.anim_ctrl = inst:GetComponentInChildren(typeof(CS.UnityEngine.Animation))
