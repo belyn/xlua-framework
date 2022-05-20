@@ -46,7 +46,7 @@ local function ResetData(self)
 	self.main_rold_data = nil --缓存主角进入场景的数据，场景没有准备好时接受到的主角数据缓存在此
 	self.scene_event_datas = {} --缓存场景事件数据，场景没有准备好时接受到的场景数据缓存在此
 	self.ontology_avatar = nil --本体角色Avatar
-	self.gameobject_list = {} --地图中对象列表
+	self.actor_list = {} --地图中对象列表
 end
 
 --none状态处理逻辑
@@ -109,6 +109,7 @@ end
 local function CreateVatar(self, msg_proto)
 	local avatar = Avatar.New()
 	avatar:OnEnterScene(msg_proto)
+	self.actor_list[avatar:GetActorId()] = avatar
 	return avatar
 end
 
