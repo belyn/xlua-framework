@@ -29,9 +29,10 @@ message EntityPos {
 }
 
 //移动表现特征
-message StateBehavior {
+message MoveBehavior {
 	required uint32 	state 					= 1; //状态
-	optional EntityPos  targetPos				= 2; //目标位置
+	optional uint32		speed					= 2; //速度
+	optional EntityPos  targetPos				= 3; //目标位置
 }
 
 //基础数据
@@ -39,7 +40,7 @@ message EntityBaseData{
 	required uint32		entityType				= 1;
 	required uint64		actorId					= 2;
 	required EntityPos  curPos					= 3; //当前位置
-	required StateBehavior  stateBehavior		= 4; //状态特征
+	required MoveBehavior  moveBehavior			= 4; //移动特征
 }
 
 //视野数据
