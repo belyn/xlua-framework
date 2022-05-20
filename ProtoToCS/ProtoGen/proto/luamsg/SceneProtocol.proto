@@ -1,6 +1,13 @@
 syntax = "proto2";
 package SceneProtocol;
 
+//地图对象类型枚举
+enum ActorType {
+	None = 0;
+	Avatar = 1;
+	Max = 2;
+}
+
 ////////////////////////////Client<--->Scene///////////////////////////////
 enum C2SSceneProtocol 
 {
@@ -9,7 +16,8 @@ enum C2SSceneProtocol
 
 enum S2CSceneProtocol 
 {
-	CmdSyncSceneEventData = 1;
+	CmdSyncEnterScene = 1; //通知进入地图
+	CmdSyncSceneEventData = 2; //地图事件同步
 }
 ////////////////////////////Client<--->Scene///////////////////////////////
 

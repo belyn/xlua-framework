@@ -135,6 +135,14 @@ local function OnProtoMatchMap(self, real_msg_id, msg_proto)
 		SceneManager:GetInstance():SwitchScene(SceneConfig.BattleScene)
 	end
 end
+local function OnProtoEnterScene(self, real_msg_id, msg_proto)
+	print("OnProtoEnterScene", real_msg_id, msg_proto)
+	MapManager:GetInstance():MainRoleEnterScene(msg_proto)
+end
+local function OnProtoSceneEventData(self, real_msg_id, msg_proto)
+	print("OnProtoSceneEventData", real_msg_id, msg_proto)
+	MapManager:GetInstance():AcceptSceneEventData(msg_proto)
+end
 
 local function AddListener(self)
 	print("Player.AddListener")
@@ -147,6 +155,8 @@ local function AddListener(self)
 	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdRetViewPlayerInfo, Bind(self, OnProtoRetViewPlayerInfo))
 	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdSyncLoginToken, Bind(self, OnProtoSyncLoginToken))
 	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CMatchMap, Bind(self, OnProtoMatchMap))
+	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Scene, SceneProtocol_pb.CmdSyncEnterScene, Bind(self, OnProtoEnterScene))
+	HallConnector:GetInstance():RegisterMsgHandler(CSCommon_pb.Scene, SceneProtocol_pb.CmdSyncSceneEventData, Bind(self, OnProtoSceneEventData))
 end
 
 local function RemoveListener(self)
@@ -160,6 +170,8 @@ local function RemoveListener(self)
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdRetViewPlayerInfo)
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Player, CSCommon_pb.CmdSyncLoginToken)
 	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Gate, GateProtocol_pb.CmdG2CMatchMap)
+	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Scene, SceneProtocol_pb.CmdSyncEnterScene)
+	HallConnector:GetInstance():UnRegisterMsgHandler(CSCommon_pb.Scene, SceneProtocol_pb.CmdSyncSceneEventData)
 end
 
 Player.__init = __init

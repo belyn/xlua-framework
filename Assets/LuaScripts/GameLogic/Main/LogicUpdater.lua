@@ -33,7 +33,6 @@ local function FixedUpdate(self)
 end
 
 local function Dispose(self)
-	MapManager():GetInstance().Dispose()
 end
 
 LogicUpdater.Update = Update

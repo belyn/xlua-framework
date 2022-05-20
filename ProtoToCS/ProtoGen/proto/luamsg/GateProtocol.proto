@@ -334,8 +334,7 @@ message C2GChatServerList {
 }
 
 message C2GMatchMap {
-	required uint64 nPlayerId    = 1; //玩家Id
-	optional uint32 nMapId = 2; //地图服Id,指定要匹配到特定的地图Id
+	optional uint32 nMapId = 1; //地图服Id,指定要匹配到特定的地图Id
 }
 
 message C2GLeaveMap {

@@ -30,6 +30,7 @@ GateProtocol_pb = require "Net.Protol.GateProtocol_pb"
 LoginProtocol_pb = require "Net.Protol.LoginProtocol_pb"
 PlayerProtocol_pb = require "Net.Protol.PlayerProtocol_pb"
 PlayerSaveProtocol_pb = require "Net.Protol.PlayerSaveProtocol_pb"
+SceneProtocol_pb = require "Net.Protol.SceneProtocol_pb"
 CustomMsgIDMap = require "Net.Config.CustomMsgIDMap"
 
 -- game data

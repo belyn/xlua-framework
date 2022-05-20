@@ -65,6 +65,10 @@ local s2c_config = {
 	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdSyncPlayerBaseData)] = PlayerProtocol_pb.SyncPlayerBaseData,
 	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdRetViewPlayerInfo)] = PlayerProtocol_pb.RetViewPlayerInfo,
 	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdSyncLoginToken)] = PlayerProtocol_pb.SyncLoginToken,
+
+	--地图服
+	[CombieMsgId(CSCommon_pb.Scene, SceneProtocol_pb.CmdSyncEnterScene)] = SceneProtocol_pb.SceneEntityInfo,
+	[CombieMsgId(CSCommon_pb.Scene, SceneProtocol_pb.CmdSyncSceneEventData)] = SceneProtocol_pb.SceneEventData,
 }
 
 local function NewC2SProto(module_id, msg_id)
