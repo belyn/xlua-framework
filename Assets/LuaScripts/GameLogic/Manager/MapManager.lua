@@ -5,9 +5,9 @@
 
 local MapState = {--管理器状态
 	None = 0,
-	SceneReady = 2,
-	MainRoleReady = 3,
-	Playing = 4,
+	SceneReady = 1,
+	MainRoleReady = 2,
+	Playing = 3,
 }
 
 local Avatar = require "GameLogic.Entity.Avatar"
@@ -64,8 +64,8 @@ end
 
 --Playing状态处理逻辑
 local function ProcessPlaying(self)
-	for i, eventList in ipairs(self.scene_event_datas) do
-		for i, event in ipairs(eventList.detaillist) do
+	for _, eventList in ipairs(self.scene_event_datas) do
+		for _, event in ipairs(eventList.detailList) do
 			self:ProcessSceneEvent(event)
 		end
 	end
@@ -126,7 +126,6 @@ MapManager.ProcessSceneReady = ProcessSceneReady
 MapManager.ProcessMainRoleReady = ProcessMainRoleReady
 MapManager.ProcessPlaying = ProcessPlaying
 MapManager.ProcessSceneEvent = ProcessSceneEvent
-MapManager.CreateBattleScene = CreateBattleScene
 MapManager.OpenBattleScene = OpenBattleScene
 MapManager.MainRoleEnterScene = MainRoleEnterScene
 MapManager.AcceptSceneEventData = AcceptSceneEventData
