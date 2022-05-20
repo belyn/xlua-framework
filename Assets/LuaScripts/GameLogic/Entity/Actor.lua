@@ -3,15 +3,23 @@
 -- 地图对象基类
 --]]
 
+local MoveBehavior = require "GameLogic.Component.MoveBehavior"
+
 local Actor = BaseClass("Actor")
 
 local function __init(self)
     self.actor_type = SceneProtocol_pb.ActorType_None
     self.actor_id = 0
     self.position = Vector3.zero
+
+    self.move_behavior = MoveBehavior.New(self)
 end
 
 local function __delete(self)
+    self.move_behavior = nil
+end
+
+local function Update(self)
 end
 
 local function GetActorType(self)
@@ -28,6 +36,7 @@ end
 
 Actor.__init = __init
 Actor.__delete = __delete
+Actor.Update = Update
 Actor.GetActorType = GetActorType
 Actor.GetActorId = GetActorId
 Actor.GetPosition = GetPosition

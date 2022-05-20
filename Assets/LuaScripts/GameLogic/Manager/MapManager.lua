@@ -71,6 +71,9 @@ end
 
 --Playing状态处理逻辑
 local function ProcessPlaying(self)
+	for actorId, actor in pairs(self.actor_list) do --进行update
+		actor:Update()
+	end
 end
 
 --创建战斗场景
