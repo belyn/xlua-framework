@@ -6,8 +6,10 @@ local ComponentBase = require "GameLogic.Component.ComponentBase"
 
 local MoveBehavior = BaseClass("MoveBehavior", ComponentBase)
 
+local prefabPath = "Models/1003/Prisoner.prefab"
+
 local function __init(self)
-    -- 角色gameObject
+    -- 角色prefab
     self.chara_inst = nil
     -- 角色控制器
     self.chara_ctrl = nil
@@ -17,7 +19,10 @@ local function __init(self)
 end
 
 local function __delete(self)
-    self.chara_inst = nil
+	if self.chara_inst then--回收
+		GameObjectPool:GetInstance():RecycleGameObject(prefabPath, self.chara_inst)
+		self.chara_inst = nil
+	end
     self.chara_ctrl = nil
     self.anim_ctrl = nil
 end
@@ -51,18 +56,18 @@ end
 
 local function OnCreate(self)
     --创建动画
-	 GameObjectPool:GetInstance():GetGameObjectAsync("Models/1003/Prisoner.prefab", function(inst)
+	 GameObjectPool:GetInstance():GetGameObjectAsync(prefabPath, function(inst)
 		if IsNull(inst) then
 			error("Load chara res err!")
 			do return end
 		end
 		
-		local chara_root = CS.UnityEngine.GameObject.Find("CharacterRoot")
-		if IsNull(chara_root) then
-			error("chara_root null!")
+		local chara_object = CS.UnityEngine.GameObject.Find("CharacterRoot")
+		if IsNull(chara_object) then
+			error("chara_object null!")
 			do return end
 		end
-		inst.transform:SetParent(chara_root.transform)
+		inst.transform:SetParent(chara_object.transform)
 		inst.transform.localPosition = self.actor:GetPosition()
         self.chara_inst = inst
         self.chara_ctrl = inst:GetComponentInChildren(typeof(CS.UnityEngine.CharacterController))

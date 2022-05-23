@@ -8,7 +8,7 @@ local Actor = require "GameLogic.Entity.Actor"
 local Avatar = BaseClass("Avatar", Actor)
 
 local function __init(self)
-    self.actor_type = SceneProtocol_pb.ActorType_Avatar
+    self.actor_type = SceneProtocol_pb.Avatar
 end
 
 local function __delete(self)

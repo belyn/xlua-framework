@@ -72,13 +72,17 @@ local function ProcessPlaying(self)
 	self.scene_event_datas = {}
 
 	for actorId, actor in pairs(self.actor_list) do --进行update
-		actor:Update()
+		if actor then
+			actor:Update()
+		end
 	end
 end
 
 local function ProcessSceneEvent(self, event)
-	if event.SceneEventType == SceneProtocol_pb.SceneEventType_EnterView then
+	if event.eventType == SceneProtocol_pb.EnterView then
 		self:CreateVatar(event.enterView)
+	elseif event.eventType == SceneProtocol_pb.LeaveView then
+		self:DelActor(event.leaveView)
 	end
 end
 
@@ -106,6 +110,9 @@ end
 
 --关闭战斗场景
 local function CloseBattleScene(self)
+	for _, actor in pairs(self.actor_list) do
+		actor:Delete()
+	end
 	self:ResetData()
 end
 
@@ -114,6 +121,14 @@ local function CreateVatar(self, msg_proto)
 	avatar:OnEnterScene(msg_proto)
 	self.actor_list[avatar:GetActorId()] = avatar
 	return avatar
+end
+
+local function DelActor(self, actorId)
+	local actor = self.actor_list[actorId]
+	if actor then
+		actor:Delete()
+	end
+	self.actor_list[actorId] = nil
 end
 
 MapManager.__init = __init
@@ -131,5 +146,6 @@ MapManager.MainRoleEnterScene = MainRoleEnterScene
 MapManager.AcceptSceneEventData = AcceptSceneEventData
 MapManager.CloseBattleScene = CloseBattleScene
 MapManager.CreateVatar = CreateVatar
+MapManager.DelActor = DelActor
 
 return MapManager
