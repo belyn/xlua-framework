@@ -24,7 +24,7 @@ local function __delete(self)
     GameObjectPool:GetInstance():RecycleGameObject(prefabPath, self.go_entity)
 end
 
-local function OnEnterScene(self, msg_proto)
+local function OnEnterScene(self, msg_proto, b_main_role)
     local entityBaseData = msg_proto.entityBaseData
     self.actor_id = entityBaseData.actorId
     local curPos = entityBaseData.curPos
@@ -36,7 +36,11 @@ local function OnEnterScene(self, msg_proto)
     assert(not IsNull(self.go_entity))
     local go_root = CS.UnityEngine.GameObject.Find("CharacterRoot")
     assert(not IsNull(go_root))
-    self.go_entity.tag = "Player"
+    self.go_entity.tag = "Untagged"
+    -- 主角控制器标记就是Player
+    if b_main_role then
+        self.go_entity.tag = "Player"
+    end
     self.go_entity.transform:SetParent(go_root.transform)
     self.go_entity.transform.localPosition = Vector3.New(8, 1, 0)
     self.go_entity:SetActive(true)

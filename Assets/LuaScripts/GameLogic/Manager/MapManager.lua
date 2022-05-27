@@ -67,7 +67,7 @@ end
 local function ProcessMainRoleReady(self)
 	self.state = MapState.Playing
 	--创建Avatar
-	self.ontology_avatar = self:CreateVatar(self.main_rold_data)
+	self.ontology_avatar = self:CreateVatar(self.main_rold_data, true)
 	self.main_rold_data = nil
 end
 
@@ -127,9 +127,9 @@ local function CloseBattleScene(self)
 	self:ResetData()
 end
 
-local function CreateVatar(self, msg_proto)
+local function CreateVatar(self, msg_proto, b_main_role)
 	local avatar = Avatar.New()
-	avatar:OnEnterScene(msg_proto)
+	avatar:OnEnterScene(msg_proto, b_main_role)
 	self.actor_list[avatar:GetActorId()] = avatar
 	return avatar
 end
