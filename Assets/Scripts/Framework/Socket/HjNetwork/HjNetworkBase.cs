@@ -17,6 +17,7 @@ namespace Networks
     {
         public Action<object, int, string> OnConnect = null;
         public Action<object, int, string> OnClosed = null;
+        public Action<byte[]> ReceivePkgHandle = null;
 
         private List<HjNetworkEvt> mNetworkEvtList = null;
         private object mNetworkEvtLock = null;

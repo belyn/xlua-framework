@@ -10,7 +10,6 @@ namespace Networks
     [Hotfix]
     public class HjTcpNetwork : HjNetworkBase
     {
-        public Action<byte[]> ReceivePkgHandle = null;
         private Thread mSendThread = null;
         private volatile bool mSendWork = false;
         private HjSemaphore mSendSemaphore = null;

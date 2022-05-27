@@ -11,7 +11,6 @@ namespace Networks
     [Hotfix]
     public class HjWebSocketNetwork: HjNetworkBase
     {
-        public Action<byte[]> ReceivePkgHandle = null;
         private Thread mSendThread = null;
         private volatile bool mSendWork = false;
         private HjSemaphore mSendSemaphore = null;

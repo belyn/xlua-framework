@@ -104,7 +104,12 @@ EffectManager = require "Framework.Resource.Effect.EffectManager"
 HallConnector = require "Net.Connector.HallConnector"
 
 --游戏逻辑
+GameConst = require "GameLogic.GameConst"
 MapManager = require "GameLogic.Manager.MapManager"
+BaseMapSystem = require "GameLogic.System.BaseMapSystem"
+PlayerInputSystem = require "GameLogic.System.PlayerInputSystem"
+AvatarMoveSystem = require "GameLogic.System.AvatarMoveSystem"
+SyncActorPosSystem = require "GameLogic.System.SyncActorPosSystem"
 
 -- 单例类初始化
 UIManager:GetInstance()

@@ -36,9 +36,9 @@ local function LateUpdate(self)
 	
 	local axisXValue = CS.ETCInput.GetAxis("Horizontal")
 	local axisYValue = CS.ETCInput.GetAxis("Vertical")
-	if Time.frameCount % 30 == 0 then
-		print("ETCInput : "..axisXValue..", "..axisYValue)
-	end
+	-- if Time.frameCount % 30 == 0 then
+	-- 	print("ETCInput : "..axisXValue..", "..axisYValue)
+	-- end
 	
 	-- 说明：这里根据获取的摇杆输入向量控制角色移动
 	-- 示例代码略

@@ -34,6 +34,9 @@ local c2s_config = {
 	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdReqViewPlayerInfo)] = PlayerProtocol_pb.ReqViewPlayerInfo,
 	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdReqServerTime)] = PlayerProtocol_pb.ReqServerTime,
 	[CombieMsgId(CSCommon_pb.Player, CSCommon_pb.CmdReqLoginToken)] = PlayerProtocol_pb.ReqLoginToken,
+
+	--地图服
+	[CombieMsgId(CSCommon_pb.Scene, SceneProtocol_pb.ReqMove)] = SceneProtocol_pb.MoveData,
 }
 
 -- 服务端=>客户端

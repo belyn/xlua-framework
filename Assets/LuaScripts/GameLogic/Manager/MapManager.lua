@@ -17,6 +17,15 @@ local traceback = debug.traceback
 
 local function __init(self)
 	self:ResetData()
+	self.ecs_world = CS.Unity.Entities.World.DefaultGameObjectInjectionWorld
+	assert(not IsNull(self.ecs_world))
+	self.ecs_entity_mgr = self.ecs_world.EntityManager
+	assert(not IsNull(self.ecs_entity_mgr))
+
+	-- 初始化ecs系统
+	PlayerInputSystem.New(self.ecs_world)
+	AvatarMoveSystem.New(self.ecs_world)
+	SyncActorPosSystem.New(self.ecs_world)
 end
 
 local function __delete(self)
@@ -83,6 +92,8 @@ local function ProcessSceneEvent(self, event)
 		self:CreateVatar(event.enterView)
 	elseif event.eventType == SceneProtocol_pb.LeaveView then
 		self:DelActor(event.leaveView)
+	elseif event.eventType == SceneProtocol_pb.SyncMove then
+		self:SyncActorPos(event.move)
 	end
 end
 
@@ -131,6 +142,22 @@ local function DelActor(self, actorId)
 	self.actor_list[actorId] = nil
 end
 
+local function SyncActorPos(self, msg_proto)
+	local actor = self.actor_list[msg_proto.actorId]
+	if actor then
+		actor:OnSyncPos(msg_proto)
+	end
+	self.actor_list[actorId] = nil
+end
+
+local function GetEcsWorld(self)
+	return self.ecs_world
+end
+
+local function GetEcsEntityMgr(self)
+	return self.ecs_entity_mgr
+end
+
 MapManager.__init = __init
 MapManager.__delete = __delete
 MapManager.Update = Update
@@ -147,5 +174,7 @@ MapManager.AcceptSceneEventData = AcceptSceneEventData
 MapManager.CloseBattleScene = CloseBattleScene
 MapManager.CreateVatar = CreateVatar
 MapManager.DelActor = DelActor
+MapManager.GetEcsWorld = GetEcsWorld 
+MapManager.GetEcsEntityMgr = GetEcsEntityMgr 
 
 return MapManager

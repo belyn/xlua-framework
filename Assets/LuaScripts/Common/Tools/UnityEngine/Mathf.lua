@@ -24,7 +24,9 @@ Mathf.Abs = math.abs
 Mathf.Acos = math.acos
 Mathf.Asin = math.asin
 Mathf.Atan = math.atan
-Mathf.Atan2 = math.atan2
+-- lua5.1版本才有，大于等于5.2以上的版本没有这个接口了
+-- Mathf.Atan2 = math.atan2
+Mathf.Atan2 = math.atan
 Mathf.Ceil = math.ceil
 Mathf.Cos = math.cos
 Mathf.Exp = math.exp

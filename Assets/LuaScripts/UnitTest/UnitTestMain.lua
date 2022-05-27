@@ -13,6 +13,7 @@ local LuaUtilTest = require "UnitTest.LuaUtilTest"
 local TableUtilTest = require "UnitTest.TableUtilTest"
 local CoroutineTest = require "UnitTest.CoroutineTest"
 local StringTest = require "UnitTest.StringTest"
+local EcsTest = require "UnitTest.EcsTest"
 
 local function LoopRunTimes(unitTests, times)
 	for i = 1,times do
@@ -35,6 +36,7 @@ local function Run()
 	LuaUtilTest.Run()
 	TableUtilTest.Run()
 	StringTest.Run()
+	EcsTest.Run()
 	coroutine.start(LoopRunTimes, {CoroutineTest}, 1)
 end
 

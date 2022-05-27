@@ -35,6 +35,7 @@ local function OnEnable(self)
 	self.server_name = nil
 	
 	self:OnRefresh()
+
 end
 
 local function SetServerInfo(self, select_svr_id)

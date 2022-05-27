@@ -16,7 +16,10 @@ local sqrt 	= math.sqrt
 local min	= math.min
 local max 	= math.max
 local sign	= math.sign
-local atan2 = math.atan2
+local atan = math.atan
+local atan2 = math.atan
+-- lua5.1版本才有，大于等于5.2以上的版本没有这个接口了
+-- local atan2 = math.atan2
 local clamp = Mathf.Clamp
 local abs	= math.abs
 local setmetatable = setmetatable
