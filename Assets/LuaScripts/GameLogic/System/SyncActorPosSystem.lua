@@ -55,7 +55,7 @@ local OnSystemUpdate = function(self)
                 msg.moveBehavior.targetPos.posX = move_info.targetPos.x * GameConst.RealToLogic
                 msg.moveBehavior.targetPos.posY = move_info.targetPos.y * GameConst.RealToLogic
                 msg.moveBehavior.targetPos.posZ = move_info.targetPos.z * GameConst.RealToLogic
-                HallConnector:GetInstance():SendMessage(CSCommon_pb.Scene, SceneProtocol_pb.ReqMove, msg)
+                HallConnector:GetInstance():SendMapMessage(CSCommon_pb.Scene, SceneProtocol_pb.ReqMove, msg)
             end
         end
     end

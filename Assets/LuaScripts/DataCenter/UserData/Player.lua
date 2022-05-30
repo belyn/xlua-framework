@@ -53,7 +53,7 @@ local function OnHeartBeatAction(self)
 
 	-- 游服心跳
 	local msg_game_heart = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Player, CSCommon_pb.CmdHeartBeat)
-	HallConnector:GetInstance():SendMessage(CSCommon_pb.Player, CSCommon_pb.CmdHeartBeat, msg_game_heart)
+	HallConnector:GetInstance():SendLogicMessage(CSCommon_pb.Player, CSCommon_pb.CmdHeartBeat, msg_game_heart)
 end
 
 local function OnReady(self)

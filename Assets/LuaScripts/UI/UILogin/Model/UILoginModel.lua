@@ -81,7 +81,7 @@ local function OnProtoLoginError(self, real_msg_id, msg_proto)
 
 	-- 请求角色列表
 	local msg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Login, CSCommon_pb.CmdRequestPlayerList)
-	HallConnector:GetInstance():SendMessage(CSCommon_pb.Login, CSCommon_pb.CmdRequestPlayerList, msg)
+	HallConnector:GetInstance():SendLogicMessage(CSCommon_pb.Login, CSCommon_pb.CmdRequestPlayerList, msg)
 end
 
 local function OnProtoPlayerListResult(self, real_msg_id, msg_proto)
@@ -91,14 +91,14 @@ local function OnProtoPlayerListResult(self, real_msg_id, msg_proto)
 		-- 请求加载角色, 默认加载第1个角色
 		local msg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Login, CSCommon_pb.CmdRequestLoadPlayer)
 		msg.playerId = role_info_list[1].playerId
-		HallConnector:GetInstance():SendMessage(CSCommon_pb.Login, CSCommon_pb.CmdRequestLoadPlayer, msg)
+		HallConnector:GetInstance():SendLogicMessage(CSCommon_pb.Login, CSCommon_pb.CmdRequestLoadPlayer, msg)
 		return
 	end
 	-- 请求创建角色
 	local msg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Login, CSCommon_pb.CmdRequestCreatePlayer)
 	msg.sCharName = self.account --角色名
 	msg.nRoleId = 1 -- 角色头像
-	HallConnector:GetInstance():SendMessage(CSCommon_pb.Login, CSCommon_pb.CmdRequestCreatePlayer, msg)
+	HallConnector:GetInstance():SendLogicMessage(CSCommon_pb.Login, CSCommon_pb.CmdRequestCreatePlayer, msg)
 end
 
 local function OnProtoCreatePlayerError(self, real_msg_id, msg_proto)

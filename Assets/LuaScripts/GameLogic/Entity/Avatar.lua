@@ -42,7 +42,7 @@ local function OnEnterScene(self, msg_proto, b_main_role)
         self.go_entity.tag = "Player"
     end
     self.go_entity.transform:SetParent(go_root.transform)
-    self.go_entity.transform.localPosition = Vector3.New(8, 1, 0)
+    self.go_entity.transform.localPosition = self.position
     self.go_entity:SetActive(true)
 
     -- 2.转换成ecs框架中的Entity

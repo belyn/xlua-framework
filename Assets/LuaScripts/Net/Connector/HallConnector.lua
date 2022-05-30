@@ -110,18 +110,17 @@ local function SendGateMessage(self, module_id, msg_id, msg_obj)
 	self.hallSocket:SendMessage(msg_bytes)
 end
 
-local function SendMessage(self, module_id, msg_id, msg_obj, nSendType)
+local function _SendMessage(self, module_id, msg_id, msg_obj, nSendType)
+	assert(nSendType)
 	local real_msg_id = CustomMsgIDMap.CombieMsgId(module_id, msg_id)
-	local request_seq = 0
-	local send_msg = SendMsgDefine.New(real_msg_id, msg_obj, request_seq)
-	local msg_bytes = NetUtil.SerializeMessage(send_msg)
-	Logger.Log(tostring(send_msg))
+	local send_msg = SendMsgDefine.New(real_msg_id, msg_obj)
+	Logger.Log(tostring(send_msg) .. " ********* " .. #(msg_obj:SerializeToString()))
 
 	self.globalSeq = self.globalSeq + 1
 	local pbC2GSendData = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GSendData)
 	pbC2GSendData.proto_data = NetUtil.SerializeMessage(send_msg)
 	pbC2GSendData.package_index = self.globalSeq
-	pbC2GSendData.data_type = nSendType or GateProtocol_pb.C2GSendData_ESendDataType_Logic
+	pbC2GSendData.data_type = nSendType
 	local package_key = NetUtil.CalcPackageKey(pbC2GSendData.proto_data, self.globalSeq, self.nRndKey)
 	pbC2GSendData.package_key = package_key
 
@@ -130,6 +129,14 @@ local function SendMessage(self, module_id, msg_id, msg_obj, nSendType)
 	local c2gMsgBytes = NetUtil.SerializeMessage(c2gSendDataMsg)
 
 	self.hallSocket:SendMessage(c2gMsgBytes)
+end
+
+local function SendLogicMessage(self, module_id, msg_id, msg_obj)
+	self:_SendMessage(module_id, msg_id, msg_obj, GateProtocol_pb.C2GSendData_ESendDataType_Logic)
+end
+
+local function SendMapMessage(self, module_id, msg_id, msg_obj)
+	self:_SendMessage(module_id, msg_id, msg_obj, GateProtocol_pb.C2GSendData_ESendDataType_Map)
 end
 
 local function Update(self)
@@ -154,7 +161,9 @@ end
 HallConnector.__init = __init
 HallConnector.Connect = Connect
 HallConnector.SendGateMessage = SendGateMessage
-HallConnector.SendMessage = SendMessage
+HallConnector._SendMessage = _SendMessage
+HallConnector.SendLogicMessage = SendLogicMessage
+HallConnector.SendMapMessage = SendMapMessage
 HallConnector.Update = Update
 HallConnector.Disconnect = Disconnect
 HallConnector.Dispose = Dispose

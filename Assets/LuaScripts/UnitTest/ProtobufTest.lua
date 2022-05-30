@@ -57,7 +57,7 @@ local function Login()
 	end
 	
 	local hallSocket = CS.Networks.HjTcpNetwork()
-	hallSocket:SendMessage(pb_data)
+	hallSocket:SendLogicMessage(pb_data)
 end
 
 local function RspLogin(pb_data)
