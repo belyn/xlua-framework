@@ -63,8 +63,11 @@ local function OnEnterScene(self, msg_proto, b_main_role)
     ecs_move_info.targetPos = self.go_entity.transform.localPosition
     ecs_entity_mgr:AddActorMoveInfo(self.ecs_entity, ecs_move_info)
 
-    local ecs_sync_pos = CS.ECS.Components.SyncActorPosInfo()
-    ecs_entity_mgr:AddSyncActorPosInfo(self.ecs_entity, ecs_sync_pos)
+    -- 当前玩家主角才需要同步位置信息给服务端
+    if b_main_role then
+        local ecs_sync_pos = CS.ECS.Components.SyncActorPosInfo()
+        ecs_entity_mgr:AddSyncActorPosInfo(self.ecs_entity, ecs_sync_pos)
+    end
 end
 
 local function OnSyncPos(self, msg_proto)
