@@ -26,6 +26,10 @@ local function OnConnect(self, sender, result, msg)
 end
 
 local function OnClose(self, sender, result, msg)
+	--飘字提示
+
+	--切换为登录界面
+	SceneManager:GetInstance():SwitchScene(SceneConfig.LoginScene)
 	if result < 0 then
 		Logger.LogError("Close err : "..msg)
 		return

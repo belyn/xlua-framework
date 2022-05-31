@@ -53,23 +53,23 @@ local OnSystemUpdate = function(self)
 
             -- 动作
             if chara_ctrl.isGrounded and CS.ETCInput.GetAxis("Vertical") ~= 0 then
-                anim_ctrl:CrossFade("Running (3)")
+                anim_ctrl:Play("Running (3)")
             end
             
             if chara_ctrl.isGrounded and CS.ETCInput.GetAxis("Vertical") == 0 and CS.ETCInput.GetAxis("Horizontal") == 0 then
-                anim_ctrl:CrossFade("Idle 1")
+                anim_ctrl:Play("Idle 1")
             end
             
             if not chara_ctrl.isGrounded then
-                anim_ctrl:CrossFade("Falling")
+                anim_ctrl:Play("Falling")
             end
             
             if chara_ctrl.isGrounded and CS.ETCInput.GetAxis("Vertical") == 0 and CS.ETCInput.GetAxis("Horizontal") > 0 then
-                anim_ctrl:CrossFade("Running (1)")
+                anim_ctrl:Play("Running (1)")
             end
             
             if chara_ctrl.isGrounded and CS.ETCInput.GetAxis("Vertical") == 0 and CS.ETCInput.GetAxis("Horizontal") < 0 then
-                anim_ctrl:CrossFade("Running (2)")
+                anim_ctrl:Play("Running (2)")
             end
         end
     end
