@@ -59,7 +59,7 @@ local function OnEnterScene(self, msg_proto, b_main_role)
 
     local ecs_move_info = CS.ECS.Components.ActorMoveInfo()
     ecs_move_info.state = 0
-    ecs_move_info.speed = 10
+    ecs_move_info.speed = 1
     ecs_move_info.targetPos = self.go_entity.transform.localPosition
     ecs_entity_mgr:AddActorMoveInfo(self.ecs_entity, ecs_move_info)
 
