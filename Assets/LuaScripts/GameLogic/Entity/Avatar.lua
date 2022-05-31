@@ -59,7 +59,7 @@ local function OnEnterScene(self, msg_proto, b_main_role)
 
     local ecs_move_info = CS.ECS.Components.ActorMoveInfo()
     ecs_move_info.state = 0
-    ecs_move_info.speed = 1
+    ecs_move_info.speed = GameConst.AvatarSpeed
     ecs_move_info.targetPos = self.go_entity.transform.localPosition
     ecs_entity_mgr:AddActorMoveInfo(self.ecs_entity, ecs_move_info)
 
@@ -78,9 +78,6 @@ local function OnSyncPos(self, msg_proto)
     transform.localPosition = Vector3(msg_proto.curPos.posX / GameConst.RealToLogic, msg_proto.curPos.posY / GameConst.RealToLogic, msg_proto.curPos.posZ / GameConst.RealToLogic)
     move_info.state = msg_proto.moveBehavior.state
     move_info.speed = msg_proto.moveBehavior.speed
-    -- move_info.targetPos.x = msg_proto.moveBehavior.targetPos.posX / GameConst.RealToLogic
-    -- move_info.targetPos.y = msg_proto.moveBehavior.targetPos.posY / GameConst.RealToLogic
-    -- move_info.targetPos.z = msg_proto.moveBehavior.targetPos.posZ / GameConst.RealToLogic
     move_info.targetPos = transform.localPosition
     ecs_entity_mgr:AddActorMoveInfo(self.ecs_entity, move_info)
     -- TODO 改变EasyTouch控制器的移动速度
