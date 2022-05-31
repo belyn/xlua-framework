@@ -73,12 +73,10 @@ end
 local function OnSyncPos(self, msg_proto)
     assert(not IsNull(self.ecs_entity))
     local ecs_entity_mgr = MapManager:GetInstance():GetEcsEntityMgr()
-    local transform = ecs_entity_mgr:GetTransform(self.ecs_entity)
     local move_info = ecs_entity_mgr:GetActorMoveInfo(self.ecs_entity)
-    transform.localPosition = Vector3(msg_proto.curPos.posX / GameConst.RealToLogic, msg_proto.curPos.posY / GameConst.RealToLogic, msg_proto.curPos.posZ / GameConst.RealToLogic)
     move_info.state = msg_proto.moveBehavior.state
     move_info.speed = msg_proto.moveBehavior.speed
-    move_info.targetPos = transform.localPosition
+    move_info.targetPos = Vector3.New(msg_proto.curPos.posX / GameConst.RealToLogic, msg_proto.curPos.posY / GameConst.RealToLogic, msg_proto.curPos.posZ / GameConst.RealToLogic)
     ecs_entity_mgr:AddActorMoveInfo(self.ecs_entity, move_info)
     -- TODO 改变EasyTouch控制器的移动速度
 end

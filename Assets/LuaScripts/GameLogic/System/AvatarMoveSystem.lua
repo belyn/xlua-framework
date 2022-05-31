@@ -36,15 +36,16 @@ local OnSystemUpdate = function(self)
                 local move_dir = Vector3.Sub(move_info.targetPos, start_pos)
                 local group_dir = Vector3.Clone(move_dir)
                 local move_distance = Vector3.Magnitude(group_dir)
-                group_dir = Vector3.Normalize(group_dir)
                 local bNeedMove = move_distance > 0.01 and true or false
-                -- TODO计算动作
-                local dt = Time.deltaTime
-                local new_pos = Vector3.Clone(move_info.targetPos)
-                if move_distance >= move_info.speed * dt then
-                    new_pos = Vector3.Add(start_pos, Vector3.Mul(group_dir, move_info.speed * dt))
-                end
+                
                 if bNeedMove then
+                    group_dir = Vector3.Normalize(group_dir)
+                    -- TODO计算动作
+                    local dt = Time.deltaTime
+                    local new_pos = Vector3.Clone(move_info.targetPos)
+                    if move_distance >= move_info.speed * dt then
+                        new_pos = Vector3.Add(start_pos, Vector3.Mul(group_dir, move_info.speed * dt))
+                    end
                     -- 设置坐标
                     local chara_ctrl_pos = chara_ctrl.transform.position
                     if Vector3.Distance(chara_ctrl_pos, start_pos) > 0.01 then

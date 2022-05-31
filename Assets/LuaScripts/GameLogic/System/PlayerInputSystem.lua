@@ -34,20 +34,20 @@ local OnSystemUpdate = function(self)
             local input_dir = Vector2(CS.ETCInput.GetAxis("Horizontal"), CS.ETCInput.GetAxis("Vertical"))
             local speed = move_info.speed
             local curPos = transform.localPosition
-            if input_dir.sqrMagnitude > 0 and speed > 0 then
-                local main_camera = CS.UnityEngine.GameObject.Find("Main Camera")
-                assert(not IsNull(main_camera))
-                local forward = main_camera.transform:TransformDirection(Vector3.forward)
-                forward.y = 0
-                local right = main_camera.transform:TransformDirection(Vector3.right)
-                local targetDirection = Vector3.Add(Vector3.Mul(right, input_dir.x), Vector3.Mul(forward, input_dir.y))
-                targetDirection.y = 0
-                targetDirection = Vector3.Normalize(targetDirection)
-                -- 延着方向前进0.10秒为目标坐标
-                move_info.targetPos = Vector3.Add(curPos, Vector3.Mul(targetDirection, speed * 0.1))
-            else 
+            -- if input_dir.sqrMagnitude > 0 and speed > 0 then
+            --     local main_camera = CS.UnityEngine.GameObject.Find("Main Camera")
+            --     assert(not IsNull(main_camera))
+            --     local forward = main_camera.transform:TransformDirection(Vector3.forward)
+            --     forward.y = 0
+            --     local right = main_camera.transform:TransformDirection(Vector3.right)
+            --     local targetDirection = Vector3.Add(Vector3.Mul(right, input_dir.x), Vector3.Mul(forward, input_dir.y))
+            --     targetDirection.y = 0
+            --     targetDirection = Vector3.Normalize(targetDirection)
+            --     -- 延着方向前进0.10秒为目标坐标
+            --     move_info.targetPos = Vector3.Add(curPos, Vector3.Mul(targetDirection, speed * 0.1))
+            -- else 
                 move_info.targetPos = curPos
-            end
+            -- end
             -- print("move_info.targetPos, ", tostring(move_info.targetPos))
             ecs_entity_mgr:AddActorMoveInfo(ecs_entity, move_info)
 

@@ -37,10 +37,10 @@ local OnSystemUpdate = function(self)
 
             local curPos = transform.localPosition
             local distance = Vector3.Distance(move_info.targetPos, transform.localPosition)
-            local distance_with_last = Vector3.Distance(sync_pos_info.lastSyncPos, move_info.targetPos)
+            local distance_with_last = Vector3.Distance(sync_pos_info.lastSyncPos, transform.localPosition)
             if distance > GameConst.SyncPosDistance or distance_with_last > GameConst.SyncPosDistance then
                 print("curPos:", tostring(curPos), "targetPos:", tostring(move_info.targetPos), "lastSyncPos:", tostring(sync_pos_info.lastSyncPos))
-                sync_pos_info.lastSyncPos = move_info.targetPos
+                sync_pos_info.lastSyncPos = transform.localPosition
                 ecs_entity_mgr:AddSyncActorPosInfo(ecs_entity, sync_pos_info)
                 self.last_sync_time = Time.realtimeSinceStartup
 
