@@ -147,7 +147,6 @@ local function SyncActorPos(self, msg_proto)
 	if actor then
 		actor:OnSyncPos(msg_proto)
 	end
-	self.actor_list[actorId] = nil
 end
 
 local function GetEcsWorld(self)
@@ -174,6 +173,7 @@ MapManager.AcceptSceneEventData = AcceptSceneEventData
 MapManager.CloseBattleScene = CloseBattleScene
 MapManager.CreateVatar = CreateVatar
 MapManager.DelActor = DelActor
+MapManager.SyncActorPos = SyncActorPos
 MapManager.GetEcsWorld = GetEcsWorld 
 MapManager.GetEcsEntityMgr = GetEcsEntityMgr 
 

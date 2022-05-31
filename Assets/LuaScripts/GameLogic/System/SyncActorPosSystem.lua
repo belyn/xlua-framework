@@ -46,7 +46,7 @@ local OnSystemUpdate = function(self)
 
                 local base_info = ecs_entity_mgr:GetActorBaseInfo(ecs_entity)
                 local msg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Scene, SceneProtocol_pb.ReqMove)
-                msg.actorId = base_info.actorId
+                msg.actorId = tostring(base_info.actorId)
                 msg.curPos.posX = transform.localPosition.x * GameConst.RealToLogic
                 msg.curPos.posY = transform.localPosition.y * GameConst.RealToLogic
                 msg.curPos.posZ = transform.localPosition.z * GameConst.RealToLogic
