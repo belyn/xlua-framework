@@ -38,8 +38,10 @@ end
 
 local function ConnectServer(self)
 	HallConnector:GetInstance():Dispose()
-	HallConnector:GetInstance():Connect("127.0.0.1", 9588, Bind(self, OnConnect), Bind(self, OnClose))
-	-- HallConnector:GetInstance():Connect("192.168.8.2", 9588, Bind(self, OnConnect), Bind(self, OnClose))
+	local login_server_id = ClientData:GetInstance().login_server_id
+	local server_data = ServerData:GetInstance()
+	local select_svr = server_data.servers[login_server_id]
+	HallConnector:GetInstance():Connect(select_svr.ip, select_svr.port, Bind(self, OnConnect), Bind(self, OnClose))
 end
 
 local function LoginServer(self, name, password)

@@ -12,6 +12,8 @@ local ServerItemData = {
 	state = 0,
 	-- 是否推荐
 	recommend = true,
+	ip = "127.0.0.1",
+	port = 9588,
 }
 
 local ServerData = BaseClass("ServerData", Singleton)
@@ -31,6 +33,8 @@ local function ParseServerList(self, servers)
 		item.area_id = v.area_id
 		item.state = v.state
 		item.recommend = v.recommend
+		item.ip = v.ip
+		item.port = v.port
 		self.servers[item.server_id] = item
 	end
 	DataManager:GetInstance():Broadcast(DataMessageNames.ON_SERVER_LIST_CHG, self)
