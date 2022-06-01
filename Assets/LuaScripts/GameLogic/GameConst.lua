@@ -5,7 +5,7 @@
 
 local GameConst = {
 	RealToLogic = 100,
-	AvatarSpeed = 1, --avatar速度
+	AvatarSpeed = 10, --avatar速度
 	SyncPosDistance = 0.05, --同步坐标的最短距离
 }
 

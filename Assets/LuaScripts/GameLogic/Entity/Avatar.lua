@@ -25,6 +25,7 @@ local function __delete(self)
 end
 
 local function OnEnterScene(self, msg_proto, b_main_role)
+    self.b_main_role = b_main_role
     local entityBaseData = msg_proto.entityBaseData
     self.actor_id = entityBaseData.actorId
     local curPos = entityBaseData.curPos
@@ -67,6 +68,8 @@ local function OnEnterScene(self, msg_proto, b_main_role)
     if b_main_role then
         local ecs_sync_pos = CS.ECS.Components.SyncActorPosInfo()
         ecs_entity_mgr:AddSyncActorPosInfo(self.ecs_entity, ecs_sync_pos)
+        -- 设置EasyTouch控制器的移动速度
+        CS.ETCInput.SetTurnMoveSpeed("Joystick", GameConst.AvatarSpeed)
     end
 end
 
@@ -78,7 +81,6 @@ local function OnSyncPos(self, msg_proto)
     move_info.speed = msg_proto.moveBehavior.speed
     move_info.targetPos = Vector3.New(msg_proto.curPos.posX / GameConst.RealToLogic, msg_proto.curPos.posY / GameConst.RealToLogic, msg_proto.curPos.posZ / GameConst.RealToLogic)
     ecs_entity_mgr:AddActorMoveInfo(self.ecs_entity, move_info)
-    -- TODO 改变EasyTouch控制器的移动速度
 end
 
 Avatar.__init = __init
