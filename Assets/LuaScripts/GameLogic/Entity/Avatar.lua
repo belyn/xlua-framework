@@ -61,7 +61,7 @@ local function OnEnterScene(self, msg_proto, b_main_role)
     ecs_entity_mgr:AddActorBaseInfo(self.ecs_entity, ecs_actor_base)
 
     local ecs_move_info = CS.ECS.Components.ActorMoveInfo()
-    ecs_move_info.state = 0
+    ecs_move_info.state = EAvatarLookState.Idle
     ecs_move_info.speed = GameConst.AvatarSpeed
     ecs_move_info.targetPos = self.go_entity.transform.localPosition
     ecs_entity_mgr:AddActorMoveInfo(self.ecs_entity, ecs_move_info)

@@ -33,6 +33,7 @@ local OnSystemUpdate = function(self)
             -- 同步坐标给服务器, targetPos是由PlayerInputSystem计算
             local transform = ecs_entity_mgr:GetTransform(ecs_entity)
             local move_info = ecs_entity_mgr:GetActorMoveInfo(ecs_entity)
+            local look_info = ecs_entity_mgr:GetActorLookInfo(ecs_entity)
             local sync_pos_info = ecs_entity_mgr:GetSyncActorPosInfo(ecs_entity)
 
             local curPos = transform.localPosition
@@ -50,7 +51,7 @@ local OnSystemUpdate = function(self)
                 msg.curPos.posX = transform.localPosition.x * GameConst.RealToLogic
                 msg.curPos.posY = transform.localPosition.y * GameConst.RealToLogic
                 msg.curPos.posZ = transform.localPosition.z * GameConst.RealToLogic
-                msg.moveBehavior.state = move_info.state
+                msg.moveBehavior.state = look_info.curState
                 msg.moveBehavior.speed = move_info.speed
                 msg.moveBehavior.targetPos.posX = move_info.targetPos.x * GameConst.RealToLogic
                 msg.moveBehavior.targetPos.posY = move_info.targetPos.y * GameConst.RealToLogic

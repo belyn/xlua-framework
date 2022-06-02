@@ -82,6 +82,7 @@ local OnSystemUpdate = function(self)
                     transform.rotation = CS.UnityEngine.Quaternion.Slerp(transform.rotation, CS.UnityEngine.Quaternion.Euler(euler.x, euler.y, euler.z), dt * 50)
                 end
 
+                new_look_state = move_info.state
                 if not IsGrounded(transform.localPosition) then
                     new_look_state = EAvatarLookState.Falling
                 end
