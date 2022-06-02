@@ -189,6 +189,7 @@ namespace ECS
         public static List<Type> LuaCallCSharp = new List<Type>()
         {
             typeof(EntityManagerExt),
+            typeof(EntityManager),
         };
     }
 #endif

@@ -27,7 +27,8 @@ namespace ECS
         [LuaCallCSharp]
         public static List<Type> LuaCallCSharp = new List<Type>()
         {
-            typeof(WorldExtExporter),
+            typeof(WorldExt),
+            typeof(World),
         };
     }
 #endif

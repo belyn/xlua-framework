@@ -68,6 +68,7 @@ namespace ECS
         public static List<Type> LuaCallCSharp = new List<Type>()
         {
             typeof(EntityQueryBuilderExt),
+            typeof(EntityQueryBuilder),
         };
     }
 #endif
