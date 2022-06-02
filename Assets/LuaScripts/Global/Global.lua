@@ -105,11 +105,14 @@ HallConnector = require "Net.Connector.HallConnector"
 
 --游戏逻辑
 GameConst = require "GameLogic.GameConst"
+EAvatarLookState = require "GameLogic.Enum.EAvatarLookState"
+EAvatarLookStateMode = require "GameLogic.Enum.EAvatarLookStateMode"
 MapManager = require "GameLogic.Manager.MapManager"
 BaseMapSystem = require "GameLogic.System.BaseMapSystem"
 PlayerInputSystem = require "GameLogic.System.PlayerInputSystem"
 AvatarMoveSystem = require "GameLogic.System.AvatarMoveSystem"
 SyncActorPosSystem = require "GameLogic.System.SyncActorPosSystem"
+AvatarLookSystem = require "GameLogic.System.AvatarLookSystem"
 
 -- 单例类初始化
 UIManager:GetInstance()

@@ -3,6 +3,8 @@ using UnityEngine;
 using XLua;
 using ECS.Components;
 using ECS.EntityTags;
+using System.Collections.Generic;
+using System;
 
 namespace ECS
 {
@@ -40,6 +42,15 @@ namespace ECS
             return entityMgr.GetComponentData<ActorMoveInfo>(entity);
         }
         public static bool AddActorMoveInfo(this EntityManager entityMgr, Entity entity, ActorMoveInfo data)
+        {
+            return entityMgr.AddComponentData(entity, data);
+        }
+        
+        public static ActorLookInfo GetActorLookInfo(this EntityManager entityMgr, Entity entity)
+        {
+            return entityMgr.GetComponentData<ActorLookInfo>(entity);
+        }
+        public static bool AddActorLookInfo(this EntityManager entityMgr, Entity entity, ActorLookInfo data)
         {
             return entityMgr.AddComponentData(entity, data);
         }
@@ -170,4 +181,15 @@ namespace ECS
             return entityMgr.AddSharedComponentData(entity, data);
         }
     }
+
+#if UNITY_EDITOR
+    public static class EntityManagerExtExporter 
+    {
+        [LuaCallCSharp]
+        public static List<Type> LuaCallCSharp = new List<Type>()
+        {
+            typeof(EntityManagerExt),
+        };
+    }
+#endif
 }

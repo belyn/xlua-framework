@@ -15,21 +15,30 @@ local function CreatePreDefineSystem(self)
 end
 
 local OnSystemCreate = function(self)
-    local ecs_entity_builder = self.ecs_system:GetQueryBuilder():WithAllActorMoveInfo()
+    local ecs_entity_builder = self.ecs_system:GetQueryBuilder():WithAllActorMoveInfo():WithNoneSyncActorPosInfo()
     self.ecs_group = ecs_entity_builder:ToEntityQuery()
 end
 
+-- 通过射线检测主角是否落在地面或者物体上
+local function IsGrounded(pos) 
+    return CS.UnityEngine.Physics.Raycast(pos, Vector3.New(0, -1.0, 0), 3.0)
+end
+
 local OnSystemUpdate = function(self)
-    
     local ecs_entity_arr = self.ecs_group:ToEntityArray(CS.Unity.Collections.Allocator.TempJob)
-    local ecs_entity_mgr = MapManager:GetInstance():GetEcsEntityMgr()
+    local map_mgr = MapManager:GetInstance()
+    local ecs_entity_mgr = map_mgr:GetEcsEntityMgr()
     if ecs_entity_arr.Length > 0 then
         for i = 0, ecs_entity_arr.Length - 1, 1 do
             local ecs_entity = ecs_entity_arr[i]
+            local base_info = ecs_entity_mgr:GetActorBaseInfo(ecs_entity)
             local chara_ctrl = ecs_entity_mgr:GetCharacterController(ecs_entity)
             local anim_ctrl = ecs_entity_mgr:GetAnimation(ecs_entity)
             local transform = ecs_entity_mgr:GetTransform(ecs_entity)
             local move_info = ecs_entity_mgr:GetActorMoveInfo(ecs_entity)
+            local look_info = ecs_entity_mgr:GetActorLookInfo(ecs_entity)
+            local avatar = map_mgr:FindVatar(tostring(base_info.actorId))
+            assert(not IsNull(avatar))
 
             if move_info.speed > 0 then
                 local start_pos = transform.localPosition
@@ -37,10 +46,15 @@ local OnSystemUpdate = function(self)
                 local group_dir = Vector3.Clone(move_dir)
                 local move_distance = Vector3.Magnitude(group_dir)
                 local bNeedMove = move_distance > 0.01 and true or false
+
+                local new_look_state = EAvatarLookState.Idle
+                local bIsOnGroud = avatar:IsOnGroudState(look_info.curState)
+                if bIsOnGroud and bNeedMove then
+                    new_look_state = EAvatarLookState.Running
+                end
                 
                 if bNeedMove then
                     group_dir = Vector3.Normalize(group_dir)
-                    -- TODO计算动作
                     local dt = Time.deltaTime
                     local new_pos = Vector3.Clone(move_info.targetPos)
                     if move_distance >= move_info.speed * dt then
@@ -66,6 +80,13 @@ local OnSystemUpdate = function(self)
                     end
                     local euler = Vector3.New(0, eulerY, 0)
                     transform.rotation = CS.UnityEngine.Quaternion.Slerp(transform.rotation, CS.UnityEngine.Quaternion.Euler(euler.x, euler.y, euler.z), dt * 50)
+                end
+
+                if not IsGrounded(transform.localPosition) then
+                    new_look_state = EAvatarLookState.Falling
+                end
+                if new_look_state ~= look_info.curState then
+                    avatar:ChangeLookState(new_look_state)            
                 end
             end
         end

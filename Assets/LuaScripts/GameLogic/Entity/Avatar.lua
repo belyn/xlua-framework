@@ -13,6 +13,8 @@ local function __init(self)
     self.actor_type = SceneProtocol_pb.Avatar
     self.ecs_entity = nil
     self.go_entity = nil
+    -- 表现栈
+    self.look_stack = {}
 end
 
 local function __delete(self)
@@ -63,6 +65,10 @@ local function OnEnterScene(self, msg_proto, b_main_role)
     ecs_move_info.speed = GameConst.AvatarSpeed
     ecs_move_info.targetPos = self.go_entity.transform.localPosition
     ecs_entity_mgr:AddActorMoveInfo(self.ecs_entity, ecs_move_info)
+    
+    local ecs_look_info = CS.ECS.Components.ActorLookInfo()
+    ecs_look_info.curState = EAvatarLookState.Idle
+    ecs_entity_mgr:AddActorLookInfo(self.ecs_entity, ecs_look_info)
 
     -- 当前玩家主角才需要同步位置信息给服务端
     if b_main_role then
@@ -83,9 +89,69 @@ local function OnSyncPos(self, msg_proto)
     ecs_entity_mgr:AddActorMoveInfo(self.ecs_entity, move_info)
 end
 
+local function PushLookState(self, curState, startTime, endMode, endTime)
+    table.insert(self.look_stack, {curState = curState, startTime = startTime, endMode = endMode, endTime = endTime})
+end
+
+local function PopLookState(self)
+    local last_state = self.look_stack[#self.look_stack]
+    local ecs_entity_mgr = MapManager:GetInstance():GetEcsEntityMgr()
+    local look_info = ecs_entity_mgr:GetActorLookInfo(self.ecs_entity)
+    if last_state ~= nil then
+        self:ChangeLookState(last_state.curState)
+    else 
+        self:ChangeLookState(EAvatarLookState.Idle)
+    end
+end
+
+local function CheckStateNeedStack(state)
+    return false 
+end
+
+local function ChangeLookState(self, new_state)
+    assert(new_state > 0)
+    local ecs_entity_mgr = MapManager:GetInstance():GetEcsEntityMgr()
+    local look_info = ecs_entity_mgr:GetActorLookInfo(self.ecs_entity)
+    assert(look_info.curState > 0)
+    local last_state = look_info.curState
+    local last_start_time = look_info.startTime
+    if look_info.curState ~= new_state and CheckStateNeedStack(look_info.curState) then
+        self:PushLookState(look_info.curState, look_info.startTime, look_info.endMode, look_info.endTime)
+    end
+    look_info.curState = new_state
+    look_info.startTime = Time.realtimeSinceStartup 
+    look_info.endMode = EAvatarLookStateMode.None
+    look_info.endTime = 0
+    ecs_entity_mgr:AddActorLookInfo(self.ecs_entity, look_info)
+    if last_state ~= look_info.curState then
+        print("actorId:"..self.actor_id, "last_state", last_state, "new_state", look_info.curState, "last_start_time", last_start_time, "new_start_time", look_info.startTime)
+    end
+end
+
+local function GetAnimationNameByState(self, state)
+    if EAvatarLookState.Idle == state then
+        return "Idle 1"
+    elseif EAvatarLookState.Running == state then
+        return "Running (1)"
+    elseif EAvatarLookState.Falling == state then
+        return "Falling"
+    else
+        assert(false, "unkown EAvatarLookState animation name:"..state)
+    end
+end
+
+local function IsOnGroudState(self, state)
+    return EAvatarLookState.Idle == state or EAvatarLookState.Running == state 
+end
+
 Avatar.__init = __init
 Avatar.__delete = __delete
 Avatar.OnEnterScene = OnEnterScene
 Avatar.OnSyncPos = OnSyncPos
+Avatar.PushLookState = PushLookState 
+Avatar.PopLookState = PopLookState 
+Avatar.ChangeLookState = ChangeLookState 
+Avatar.GetAnimationNameByState = GetAnimationNameByState 
+Avatar.IsOnGroudState = IsOnGroudState 
 
 return Avatar

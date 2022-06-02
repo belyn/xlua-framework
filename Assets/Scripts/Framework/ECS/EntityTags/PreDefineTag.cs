@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Unity.Entities;
+using XLua;
 
 namespace ECS.EntityTags
 {
@@ -74,4 +75,37 @@ namespace ECS.EntityTags
     { }
     public struct PreDefineTag1002 : ISharedComponentData
     { }
+
+#if UNITY_EDITOR
+    public static class PreDefineTagExporter
+    {
+        [LuaCallCSharp]
+        public static List<Type> LuaCallCSharp = new List<Type>()
+        {
+            typeof(PreDefineTag1),
+            typeof(PreDefineTag2),
+            typeof(PreDefineTag3),
+            typeof(PreDefineTag4),
+            typeof(PreDefineTag5),
+            typeof(PreDefineTag6),
+            typeof(PreDefineTag7),
+            typeof(PreDefineTag8),
+            typeof(PreDefineTag9),
+            typeof(PreDefineTag10),
+            typeof(PreDefineTag11),
+            typeof(PreDefineTag12),
+            typeof(PreDefineTag13),
+            typeof(PreDefineTag14),
+            typeof(PreDefineTag15),
+            typeof(PreDefineTag16),
+            typeof(PreDefineTag17),
+            typeof(PreDefineTag18),
+            typeof(PreDefineTag19),
+            typeof(PreDefineTag20),
+
+            typeof(PreDefineTag1001),
+            typeof(PreDefineTag1002),
+        };
+    }
+#endif
 }

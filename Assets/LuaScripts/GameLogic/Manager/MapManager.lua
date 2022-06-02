@@ -26,6 +26,7 @@ local function __init(self)
 	PlayerInputSystem.New(self.ecs_world)
 	AvatarMoveSystem.New(self.ecs_world)
 	SyncActorPosSystem.New(self.ecs_world)
+	AvatarLookSystem.New(self.ecs_world)
 end
 
 local function __delete(self)
@@ -134,6 +135,10 @@ local function CreateVatar(self, msg_proto, b_main_role)
 	return avatar
 end
 
+local function FindVatar(self, actorId)
+	return self.actor_list[actorId]
+end
+
 local function DelActor(self, actorId)
 	local actor = self.actor_list[actorId]
 	if actor then
@@ -172,6 +177,7 @@ MapManager.MainRoleEnterScene = MainRoleEnterScene
 MapManager.AcceptSceneEventData = AcceptSceneEventData
 MapManager.CloseBattleScene = CloseBattleScene
 MapManager.CreateVatar = CreateVatar
+MapManager.FindVatar = FindVatar
 MapManager.DelActor = DelActor
 MapManager.SyncActorPos = SyncActorPos
 MapManager.GetEcsWorld = GetEcsWorld 

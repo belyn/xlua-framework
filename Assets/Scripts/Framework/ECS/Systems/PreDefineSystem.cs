@@ -90,7 +90,7 @@ namespace ECS.Systems
     { }
     public class PreDefineSys109 : BasePreDefSystem
     { }
-    public class PreDefineSys100 : BasePreDefSystem
+    public class PreDefineSys110 : BasePreDefSystem
     { }
     public class PreDefineSys111 : BasePreDefSystem
     { }
@@ -210,4 +210,84 @@ namespace ECS.Systems
     { }
     public class PreDefineSys9995 : BasePreDefSystem
     { }
+
+#if UNITY_EDITOR
+    public static class PreDefineSystemExporter
+    {
+        [LuaCallCSharp]
+        public static List<Type> LuaCallCSharp = new List<Type>()
+        {
+            typeof(PreDefineSys101),
+            typeof(PreDefineSys102),
+            typeof(PreDefineSys103),
+            typeof(PreDefineSys104),
+            typeof(PreDefineSys105),
+            typeof(PreDefineSys106),
+            typeof(PreDefineSys107),
+            typeof(PreDefineSys108),
+            typeof(PreDefineSys109),
+            typeof(PreDefineSys110),
+            typeof(PreDefineSys111),
+            typeof(PreDefineSys112),
+            typeof(PreDefineSys113),
+            typeof(PreDefineSys114),
+            typeof(PreDefineSys115),
+            typeof(PreDefineSys116),
+            typeof(PreDefineSys117),
+            typeof(PreDefineSys118),
+            typeof(PreDefineSys119),
+            typeof(PreDefineSys120),
+            typeof(PreDefineSys121),
+            typeof(PreDefineSys122),
+            typeof(PreDefineSys123),
+            typeof(PreDefineSys124),
+            typeof(PreDefineSys125),
+            typeof(PreDefineSys126),
+            typeof(PreDefineSys127),
+            typeof(PreDefineSys128),
+            typeof(PreDefineSys129),
+            typeof(PreDefineSys130),
+            typeof(PreDefineSys201),
+            typeof(PreDefineSys202),
+            typeof(PreDefineSys203),
+            typeof(PreDefineSys204),
+            typeof(PreDefineSys205),
+            typeof(PreDefineSys206),
+            typeof(PreDefineSys207),
+            typeof(PreDefineSys208),
+            typeof(PreDefineSys209),
+            typeof(PreDefineSys210),
+            typeof(PreDefineSys301),
+            typeof(PreDefineSys302),
+            typeof(PreDefineSys303),
+            typeof(PreDefineSys304),
+            typeof(PreDefineSys305),
+            typeof(PreDefineSys306),
+            typeof(PreDefineSys307),
+            typeof(PreDefineSys308),
+            typeof(PreDefineSys309),
+            typeof(PreDefineSys310),
+            typeof(PreDefineSys401),
+            typeof(PreDefineSys402),
+            typeof(PreDefineSys403),
+            typeof(PreDefineSys404),
+            typeof(PreDefineSys405),
+            typeof(PreDefineSys406),
+            typeof(PreDefineSys407),
+            typeof(PreDefineSys408),
+            typeof(PreDefineSys409),
+            typeof(PreDefineSys410),
+            typeof(PreDefineSys9991),
+            typeof(PreDefineSys9992),
+            typeof(PreDefineSys9993),
+            typeof(PreDefineSys9994),
+        };
+
+        [CSharpCallLua]
+        public static List<Type> CSharpCallLua = new List<Type>()
+        {
+            typeof(Action),
+        };
+    }
+#endif
 }

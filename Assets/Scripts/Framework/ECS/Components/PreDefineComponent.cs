@@ -2,6 +2,7 @@
 using XLua;
 using Unity.Entities;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace ECS.Components
 {
@@ -16,6 +17,13 @@ namespace ECS.Components
         public int state;
         public int speed;
         public Vector3 targetPos;
+    }
+    public struct ActorLookInfo : IComponentData
+    {
+        public uint curState;
+        public double startTime; 
+        public long endMode;
+        public double endTime; 
     }
     public struct SyncActorPosInfo : IComponentData
     { 
@@ -41,4 +49,22 @@ namespace ECS.Components
         public long value3;
         public long value4;
     }
+
+#if UNITY_EDITOR
+    public static class PreDefineComponentExporter
+    {
+        [LuaCallCSharp]
+        public static List<Type> LuaCallCSharp = new List<Type>()
+        {
+            typeof(ActorBaseInfo),
+            typeof(ActorMoveInfo),
+            typeof(ActorLookInfo),
+            typeof(SyncActorPosInfo),
+            typeof(AvatarInfo),
+            typeof(ActorFightAttrInfo),
+
+            typeof(PreDefineComponent1001),
+        };
+    }
+#endif
 }

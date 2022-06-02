@@ -2,6 +2,8 @@
 using Unity.Entities;
 using UnityEngine;
 using Unity.Collections;
+using System.Collections.Generic;
+using System;
 
 namespace ECS
 {
@@ -18,4 +20,15 @@ namespace ECS
         }
 
     }
+
+#if UNITY_EDITOR
+    public static class WorldExtExporter
+    {
+        [LuaCallCSharp]
+        public static List<Type> LuaCallCSharp = new List<Type>()
+        {
+            typeof(WorldExtExporter),
+        };
+    }
+#endif
 }
