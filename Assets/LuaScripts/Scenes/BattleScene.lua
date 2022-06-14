@@ -7,16 +7,12 @@
 local BattleScene = BaseClass("BattleScene", BaseScene)
 local base = BaseScene
 
---角色资源路径
-local police_res_path = "Models/1002/Police.prefab"
-local prisoner_res_path = "Models/1003/Prisoner.prefab"
-
 -- 创建：准备预加载资源
 local function OnCreate(self)
 	base.OnCreate(self)
 	-- 预加载资源
-	self:AddPreloadResource(police_res_path, typeof(CS.UnityEngine.GameObject), 5)
-	self:AddPreloadResource(prisoner_res_path, typeof(CS.UnityEngine.GameObject), 10)
+	self:AddPreloadResource(GameConst.Police, typeof(CS.UnityEngine.GameObject), 5)
+	self:AddPreloadResource(GameConst.Prisoner, typeof(CS.UnityEngine.GameObject), 10)
 	self:AddPreloadResource(UIConfig[UIWindowNames.UIBattleMain].PrefabPath, typeof(CS.UnityEngine.GameObject), 1)
 end
 

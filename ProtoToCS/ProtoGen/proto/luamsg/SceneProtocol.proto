@@ -9,23 +9,22 @@ enum ActorType {
 }
 
 //位置坐标
-message EntityPos {
-	required int32		posX					= 1;
-	required int32		posY					= 2;
-	required int32		posZ					= 3;
+message Vector3 {
+	required int32		x					= 1;
+	required int32		y					= 2;
+	required int32		z					= 3;
 }
 
-//移动表现特征
 message MoveBehavior {
 	required uint32 	state 					= 1; //状态
-	optional uint32		speed					= 2; //速度
-	optional EntityPos  targetPos				= 3; //目标位置
+	required Vector3   	forward					= 2; //朝向
+	optional Vector3  	moveVec					= 3; //移动向量，包含了速度值
 }
 
 message MoveData { //客户端通知移动，服务端广播移动
-	required uint64		actorId					= 1;
-	required EntityPos  curPos					= 2; //当前位置
-	required MoveBehavior  moveBehavior			= 3; //移动特征
+	required uint64		actorId		   = 1;
+	required Vector3  	curPos		   = 2; //当前位置
+	required MoveBehavior behavior = 3;
 }
 
 //////////////////////////////////C2S///////////////////////////////////////
@@ -47,7 +46,7 @@ enum S2CSceneProtocol
 message EntityBaseData{
 	required uint32		entityType				= 1;
 	required uint64		actorId					= 2;
-	required EntityPos  curPos					= 3; //当前位置
+	required Vector3  curPos					= 3; //当前位置
 	optional MoveBehavior  moveBehavior			= 4; //移动特征
 }
 

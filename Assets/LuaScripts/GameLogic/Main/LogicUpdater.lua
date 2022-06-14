@@ -27,6 +27,11 @@ local function Update(self)
 end
 
 local function LateUpdate(self)
+	local mapManager = MapManager:GetInstance()
+	local status,err = pcall(mapManager.LateUpdate, mapManager)
+	if not status then
+		Logger.LogError("mapManager update err : "..err.."\n"..traceback())
+	end
 end
 
 local function FixedUpdate(self)

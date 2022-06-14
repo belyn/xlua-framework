@@ -30,6 +30,16 @@ local function SerializeMessage(msg_obj)
 	output = output..string.pack("=I2", msg_obj.MsgID)
 	output = output..string.pack("=I2", string.len(send_msg))
 	output = output..send_msg
+
+	local proto_id, msg_id = CustomMsgIDMap.TranslateMsgId(msg_obj.MsgID)
+	if proto_id == CSCommon_pb.Scene and msg_id == SceneProtocol_pb.ReqMove then
+		Logger.Log("SerializeMessage, A:"..tostring(msg_obj.MsgProto))
+		local msg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Scene, SceneProtocol_pb.ReqMove)
+		msg:ParseFromString(send_msg)
+		Logger.Log("SerializeMessage, B:"..tostring(msg))
+		assert(msg.behavior ~= nil)
+	end
+
 	return output
 end
 
@@ -46,8 +56,6 @@ local function DeserializeMessage(byteArray)
 		end
 
 		local pb_data = byteArray:readBuf(pkg_length)
-		-- print(string.format("real_msg_id[%d](module_id:%d, msg_id:%d)", real_msg_id, CustomMsgIDMap.TranslateMsgId(real_msg_id)), ", pkg_length:", pkg_length, ", pb_data:", string.byte(pb_data, 1, string.len(pb_data)))
-
 		local msg_obj = CustomMsgIDMap.NewS2CProto(real_msg_id) 
 		if msg_obj then
 			msg_obj:ParseFromString(pb_data)

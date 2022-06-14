@@ -72,7 +72,6 @@ local function OnReceivePackage(self, receive_bytes)
 		local receive_msg = receive_msgs[i]
 		-- 协议分发
 		local real_msg_id = receive_msg.MsgID
-		print(string.format("real_msg_id[%d](module_id:%d, msg_id:%d)", real_msg_id, CustomMsgIDMap.TranslateMsgId(real_msg_id)), tostring(receive_msg))
 		local handler = self.tMsgHandler[real_msg_id]
 		if handler ~= nil then
 			local status,err = pcall(handler, real_msg_id, receive_msg.MsgProto)

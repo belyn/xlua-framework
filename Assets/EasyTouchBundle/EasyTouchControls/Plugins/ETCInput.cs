@@ -891,8 +891,15 @@ public class ETCInput : MonoBehaviour{
 			return false;
 		}
 	}
-	
-	
+	public static Vector3 GetAxisLastMove(string ctrlName){
+		ETCJoystick joy = GetControlJoystick(ctrlName);
+		if (joy)
+		{
+			return joy.tmLastMove;
+		}
+		return Vector3.zero;
+	}
+
 	public static bool GetButtonDown(string buttonName){
 		if (ETCInput.instance.axes.TryGetValue( buttonName, out axis)){
 			

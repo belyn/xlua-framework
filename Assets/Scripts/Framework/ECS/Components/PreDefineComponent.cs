@@ -10,37 +10,8 @@ namespace ECS.Components
     {
         public uint actorType;
         public ulong actorId;
-        public int level;
-    }
-    public struct ActorMoveInfo : IComponentData
-    {
-        public int state;
-        public int speed;
-        public Vector3 targetPos;
-    }
-    public struct ActorLookInfo : IComponentData
-    {
-        public uint curState;
-        public double startTime; 
-        public long endMode;
-        public double endTime; 
-    }
-    public struct SyncActorPosInfo : IComponentData
-    { 
-        public Vector3 lastSyncPos;
-    }
-    public struct AvatarInfo : IComponentData
-    {
-        public uint camp;
-        public uint career;
-    }
-    public struct ActorFightAttrInfo : IComponentData
-    {
-        public ulong curHp;
-        public ulong maxHp;
     }
     
-
     //单元测试用
     public struct PreDefineComponent1001 : IComponentData
     {
@@ -57,11 +28,6 @@ namespace ECS.Components
         public static List<Type> LuaCallCSharp = new List<Type>()
         {
             typeof(ActorBaseInfo),
-            typeof(ActorMoveInfo),
-            typeof(ActorLookInfo),
-            typeof(SyncActorPosInfo),
-            typeof(AvatarInfo),
-            typeof(ActorFightAttrInfo),
 
             typeof(PreDefineComponent1001),
         };

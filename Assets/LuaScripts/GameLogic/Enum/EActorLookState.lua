@@ -3,10 +3,10 @@
 -- 角色表现状态枚举 
 --]]
 
-local EAvatarLookState = {
+local EActorLookState = {
 	Idle = 101,
 	Running = 102,
 	Falling = 103,
 }
 
-return ConstClass("EAvatarLookState", EAvatarLookState)
+return ConstClass("EActorLookState", EActorLookState)

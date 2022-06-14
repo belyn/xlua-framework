@@ -79,7 +79,7 @@ public class ETCJoystick : ETCBase,IPointerEnterHandler,IDragHandler, IBeginDrag
 	public float tmAdditionnalRotation = 0;
 	public AnimationCurve tmMoveCurve;
 	public bool tmLockInJump = false;
-	private Vector3 tmLastMove;
+	public Vector3 tmLastMove;
 
 	#endregion
 		

@@ -38,8 +38,6 @@ local function OnLoadModuleData(self, msg_proto)
 end
 
 local function OnHeartBeatAction(self)
-	print("OnHeartBeatAction")
-
 	-- ping 网关
 	local msg_ping_gate = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Gate, GateProtocol_pb.CmdC2GPing)
 	msg_ping_gate.tick = Time.realtimeSinceStartup * 1000
@@ -99,32 +97,22 @@ local function GetCreateTime(self)
 end
 
 local function OnProtoG2CPing(self, real_msg_id, msg_proto)
-	print("OnProtoG2CPing", real_msg_id, msg_proto)
 	local cur_tick = Time.realtimeSinceStartup * 1000
-	print(string.format("ping gate cost=%f, cur_tick=%f, req_tick=%f, Time.deltaTime=%f", cur_tick - msg_proto.tick, cur_tick, msg_proto.tick, Time.deltaTime * 1000))
 end
 local function OnProtoG2CPingServerNet(self, real_msg_id, msg_proto)
-	print("OnProtoG2CPingServerNet", real_msg_id, msg_proto)
 	local cur_tick = Time.realtimeSinceStartup * 1000
-	print(string.format("ping game cost=%f, cur_tick=%f, req_tick=%f, Time.deltaTime=%f", cur_tick - msg_proto.req.tick, cur_tick, msg_proto.req.tick, Time.deltaTime * 1000))
 end
 local function OnProtoSyncServerTime(self, real_msg_id, msg_proto)
-	print("OnProtoSyncServerTime", real_msg_id, msg_proto)
 end
 local function OnProtoSyncNotice(self, real_msg_id, msg_proto)
-	print("OnProtoSyncNotice", real_msg_id, msg_proto)
 end
 local function OnProtoErrorCode(self, real_msg_id, msg_proto)
-	print("OnProtoErrorCode", real_msg_id, msg_proto)
 end
 local function OnProtoSyncPlayerBaseData(self, real_msg_id, msg_proto)
-	print("OnProtoSyncPlayerBaseData", real_msg_id, msg_proto)
 end
 local function OnProtoRetViewPlayerInfo(self, real_msg_id, msg_proto)
-	print("OnProtoRetViewPlayerInfo", real_msg_id, msg_proto)
 end
 local function OnProtoSyncLoginToken(self, real_msg_id, msg_proto)
-	print("OnProtoSyncLoginToken", real_msg_id, msg_proto)
 end
 local function OnProtoMatchMap(self, real_msg_id, msg_proto)
 	print("OnProtoMatchMap", real_msg_id, msg_proto)
@@ -136,11 +124,9 @@ local function OnProtoMatchMap(self, real_msg_id, msg_proto)
 	end
 end
 local function OnProtoEnterScene(self, real_msg_id, msg_proto)
-	print("OnProtoEnterScene", real_msg_id, msg_proto)
 	MapManager:GetInstance():MainRoleEnterScene(msg_proto)
 end
 local function OnProtoSceneEventData(self, real_msg_id, msg_proto)
-	print("OnProtoSceneEventData", real_msg_id, msg_proto)
 	MapManager:GetInstance():AcceptSceneEventData(msg_proto)
 end
 
