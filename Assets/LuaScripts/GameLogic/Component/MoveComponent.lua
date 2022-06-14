@@ -8,7 +8,6 @@ local ComponentBase = require "GameLogic.Component.ComponentBase"
 local MoveComponent = BaseClass("MoveComponent", ComponentBase)
 
 local function __init(self)
-    assert(self.actor.actor_type == SceneProtocol_pb.Avatar)
 	local ecs_entity_mgr = MapManager:GetInstance():GetEcsEntityMgr()
     self.chara_ctrl =  ecs_entity_mgr:GetCharacterController(self.actor.ecs_entity)
 	assert(not IsNull(self.chara_ctrl))

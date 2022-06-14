@@ -15,7 +15,7 @@ local function __init(self)
 	self.transform = ecs_entity_mgr:GetTransform(self.actor.ecs_entity)
 	assert(not IsNull(self.transform))
     self.lastMove = Vector3.zero
-
+	self.lastMoveSyncTime = 0
 	CS.ETCInput.SetTurnMoveSpeed("Joystick", GameConst.AvatarSpeed)
 	self:RegisterETCEvent()
 end
@@ -35,6 +35,14 @@ local function LateUpdate(self)
 		self.actor:ChangeLookState(EActorLookState.Running)
 	else
 		self.actor:ChangeLookState(EActorLookState.Idle)
+	end
+	if self.lastMoveSyncTime ~= 0 and self.lastMoveSyncTime + GameConst.FixMoveVecSyncTime < Time.time then
+		local lastMove = CS.ETCInput.GetAxisLastMove("Joystick")
+		local distance =  Vector3.Distance(self.lastMove, lastMove)
+		if distance > 0 then --向量有偏差
+			self:OnSyncMove(lastMove, EActorLookState.Running)
+		end
+		self.lastMoveSyncTime = Time.time
 	end
 end
 
@@ -66,10 +74,12 @@ local function OnMoveEvent(self)
 		return
 	end
 	self:OnSyncMove(lastMove, EActorLookState.Running)
+	self.lastMoveSyncTime = Time.time
 end
 
 local function OnMoveEndEvent(self)
 	self:OnSyncMove(Vector3.zero, EActorLookState.Idle) --结束移动，直接同步
+	self.lastMoveSyncTime = 0
 end
 
 local function RegisterETCEvent(self)

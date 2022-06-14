@@ -8,6 +8,7 @@ local GameConst = {
 	AvatarSpeed = 10, --avatar速度
 	FixPosDistance = 1, --纠正坐标的最短距离
 	FixMoveVec = 1, --同步移动向量的最小偏移值
+	FixMoveVecSyncTime = 3, --持续移动时，固定时长进行强制同步，防止起始时微小的偏移量变化，在长时间后累积为巨大的偏移量
 	Gravity = 9.81, --重力值
 	Police = "Models/1002/Police.prefab",
 	Prisoner = "Models/1003/Prisoner.prefab",
