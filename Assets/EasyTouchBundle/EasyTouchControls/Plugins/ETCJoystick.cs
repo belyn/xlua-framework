@@ -80,9 +80,10 @@ public class ETCJoystick : ETCBase,IPointerEnterHandler,IDragHandler, IBeginDrag
 	public AnimationCurve tmMoveCurve;
 	public bool tmLockInJump = false;
 	public Vector3 tmLastMove;
+	public int axisAnti = 1;
 
 	#endregion
-		
+
 	#region Private members
 	private Vector2 thumbPosition;
 	private bool isDynamicActif;
@@ -741,7 +742,7 @@ public class ETCJoystick : ETCBase,IPointerEnterHandler,IDragHandler, IBeginDrag
 
 	private void DoTurnAndMove(){
 
-		float angle =Mathf.Atan2( axisX.axisValue,axisY.axisValue ) * Mathf.Rad2Deg;
+		float angle =Mathf.Atan2( axisX.axisValue * axisAnti, axisY.axisValue * axisAnti) * Mathf.Rad2Deg;
 		float speed = tmMoveCurve.Evaluate( new Vector2(axisX.axisValue,axisY.axisValue).magnitude) * tmSpeed;
 
 		if (axisX.directTransform != null){
