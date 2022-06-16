@@ -27,11 +27,14 @@ local function Update(self)
 end
 
 local function OnMove(self, msg_proto)
-    local localPosition = Vector3.New(msg_proto.curPos.x / GameConst.RealToLogic, msg_proto.curPos.y / GameConst.RealToLogic, msg_proto.curPos.z / GameConst.RealToLogic)
-    self.transform.forward =  Vector3.New(msg_proto.behavior.forward.x / GameConst.RealToLogic, msg_proto.behavior.forward.y / GameConst.RealToLogic, msg_proto.behavior.forward.z / GameConst.RealToLogic)
+    local localPosition = Vector3.New(msg_proto.curPos.x, msg_proto.curPos.y, msg_proto.curPos.z)
+    localPosition = localPosition / GameConst.RealToLogic
+    local forward = Vector3.New(msg_proto.behavior.forward.x, msg_proto.behavior.forward.y, msg_proto.behavior.forward.z)
+    self.transform.forward =  forward / GameConst.RealToLogic
     self.actor:ChangeLookState(msg_proto.behavior.state)
     local distance =  Vector3.Distance(self.transform.localPosition, localPosition)
-    local moveVec = Vector3.New(msg_proto.behavior.moveVec.x / GameConst.RealToLogic, 0, msg_proto.behavior.moveVec.z / GameConst.RealToLogic)
+    local moveVec = Vector3.New(msg_proto.behavior.moveVec.x, 0, msg_proto.behavior.moveVec.z)
+    moveVec = moveVec / GameConst.RealToLogic
     if moveVec == Vector3.zero and distance > GameConst.FixPosDistance then --移动结束时，进行位置判断处理
         self.transform.localPosition = localPosition
         print("OnSyncPos localPosition", self.transform.localPosition, " sync LocalPosition ", localPosition, "distance ", distance)

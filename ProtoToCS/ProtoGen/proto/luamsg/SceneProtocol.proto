@@ -31,8 +31,13 @@ message MoveData { //客户端通知移动，服务端广播移动
 enum C2SSceneProtocol 
 {
 	ReqMove = 1;
+	SyncPos = 2;
 }
 
+message SyncPosData {
+	required uint64		actorId		   = 1;
+	required Vector3  	curPos		   = 2; //当前位置
+}
 
 //////////////////////////////////S2C///////////////////////////////////////
 

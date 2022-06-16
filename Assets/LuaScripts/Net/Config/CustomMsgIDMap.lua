@@ -37,6 +37,7 @@ local c2s_config = {
 
 	--地图服
 	[CombieMsgId(CSCommon_pb.Scene, SceneProtocol_pb.ReqMove)] = SceneProtocol_pb.MoveData,
+	[CombieMsgId(CSCommon_pb.Scene, SceneProtocol_pb.SyncPos)] = SceneProtocol_pb.SyncPosData,
 }
 
 -- 服务端=>客户端

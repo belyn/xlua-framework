@@ -14,6 +14,7 @@ local function __init(self, msg_proto)
     local entityBaseData = msg_proto.entityBaseData
     self.actor_id = entityBaseData.actorId
     local position = Vector3.New(entityBaseData.curPos.x, entityBaseData.curPos.y, entityBaseData.curPos.z)
+    position = position / GameConst.RealToLogic
     print("Actor.__init, ", self.actor_id, tostring(position))
     -- 1.创建prefab的GameObject 
     self.go_entity = GameObjectPool:GetInstance():TryGetFromCache(GameConst.Prisoner)	

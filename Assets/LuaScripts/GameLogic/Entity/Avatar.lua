@@ -26,6 +26,7 @@ local function __delete(self)
 end
 
 local function OnEnterScene(self, b_main_role)
+    self.b_main_role = b_main_role
     self.go_entity.tag = (b_main_role and "Player") or "Untagged" -- 主角控制器标记就是Player
     --设置控制器
     if b_main_role then

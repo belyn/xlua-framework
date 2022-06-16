@@ -14,8 +14,16 @@ local function __init(self)
 	assert(not IsNull(self.chara_ctrl))
 	self.transform = ecs_entity_mgr:GetTransform(self.actor.ecs_entity)
 	assert(not IsNull(self.transform))
-    self.lastMove = Vector3.zero
+	--消息
+	self.reqMoveMsg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Scene, SceneProtocol_pb.ReqMove)
+	self.reqMoveMsg.actorId = tostring(self.actor:GetActorId())
+
+	self.syncPosMsg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Scene, SceneProtocol_pb.SyncPos)
+	self.syncPosMsg.actorId = tostring(self.actor:GetActorId())
+    --属性值
+	self.lastMove = Vector3.zero
 	self.lastMoveSyncTime = 0
+	self.lastSyncPosTime = 0
 	CS.ETCInput.SetTurnMoveSpeed("Joystick", GameConst.AvatarSpeed)
 	self:RegisterETCEvent()
 end
@@ -36,7 +44,8 @@ local function LateUpdate(self)
 	else
 		self.actor:ChangeLookState(EActorLookState.Idle)
 	end
-	if self.lastMoveSyncTime ~= 0 and self.lastMoveSyncTime + GameConst.FixMoveVecSyncTime < Time.time then
+	--移动中，定时同步/、广播移动向量
+	if self.lastMoveSyncTime ~= 0 and self.lastMoveSyncTime + GameConst.FixMoveVecTime < Time.time then
 		local lastMove = CS.ETCInput.GetAxisLastMove("Joystick")
 		local distance =  Vector3.Distance(self.lastMove, lastMove)
 		if distance > 0 then --向量有偏差
@@ -44,27 +53,40 @@ local function LateUpdate(self)
 		end
 		self.lastMoveSyncTime = Time.time
 	end
+	--移动中，定时同步移位置
+	if self.lastSyncPosTime ~= 0 and self.lastSyncPosTime + GameConst.SyncPosTime < Time.time then
+		self:OnSyncPos()
+		self.lastSyncPosTime = Time.time
+	end
 end
 
 --注册ETC事件
 local function OnSyncMove(self, lastMove, state)
 	self.lastMove = lastMove
+	self.lastMoveSyncTime = Time.time
+	self.lastSyncPosTime  = Time.time
 	print("lastMove *********** ", Time.time, Time.frameCount, lastMove)
-    local ecs_entity_mgr = MapManager:GetInstance():GetEcsEntityMgr()
-	local msg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Scene, SceneProtocol_pb.ReqMove)
-	msg.actorId = tostring(self.actor:GetActorId())
-	msg.curPos.x = Mathf.Floor(self.transform.localPosition.x * GameConst.RealToLogic)
-	msg.curPos.y = Mathf.Floor(self.transform.localPosition.y * GameConst.RealToLogic)
-	msg.curPos.z = Mathf.Floor(self.transform.localPosition.z * GameConst.RealToLogic)
-	msg.behavior.state = state
-	msg.behavior.forward.x = Mathf.Floor(self.transform.forward.x * GameConst.RealToLogic)
-	msg.behavior.forward.y = Mathf.Floor(self.transform.forward.y * GameConst.RealToLogic)
-	msg.behavior.forward.z = Mathf.Floor(self.transform.forward.z * GameConst.RealToLogic)
-	msg.behavior.moveVec.x = Mathf.Floor(lastMove.x * GameConst.RealToLogic)
-	msg.behavior.moveVec.y = 0
-	msg.behavior.moveVec.z = Mathf.Floor(lastMove.z * GameConst.RealToLogic)
-	HallConnector:GetInstance():SendMapMessage(CSCommon_pb.Scene, SceneProtocol_pb.ReqMove, msg)
-	print("OnSyncMove ", msg.behavior.moveVec.x, msg.behavior.moveVec.y, msg.behavior.moveVec.z)
+	self.reqMoveMsg.curPos.x = Mathf.Floor(self.transform.localPosition.x * GameConst.RealToLogic)
+	self.reqMoveMsg.curPos.y = Mathf.Floor(self.transform.localPosition.y * GameConst.RealToLogic)
+	self.reqMoveMsg.curPos.z = Mathf.Floor(self.transform.localPosition.z * GameConst.RealToLogic)
+	self.reqMoveMsg.behavior.state = state
+	self.reqMoveMsg.behavior.forward.x = Mathf.Floor(self.transform.forward.x * GameConst.RealToLogic)
+	self.reqMoveMsg.behavior.forward.y = Mathf.Floor(self.transform.forward.y * GameConst.RealToLogic)
+	self.reqMoveMsg.behavior.forward.z = Mathf.Floor(self.transform.forward.z * GameConst.RealToLogic)
+	self.reqMoveMsg.behavior.moveVec.x = Mathf.Floor(lastMove.x * GameConst.RealToLogic)
+	self.reqMoveMsg.behavior.moveVec.y = 0
+	self.reqMoveMsg.behavior.moveVec.z = Mathf.Floor(lastMove.z * GameConst.RealToLogic)
+	HallConnector:GetInstance():SendMapMessage(CSCommon_pb.Scene, SceneProtocol_pb.ReqMove, self.reqMoveMsg)
+	print("OnSyncMove ", self.reqMoveMsg.behavior.moveVec.x, self.reqMoveMsg.behavior.moveVec.y, self.reqMoveMsg.behavior.moveVec.z)
+end
+
+local function OnSyncPos(self)
+	print("OnSyncPos *********** ", Time.time)
+	self.syncPosMsg.curPos.x = Mathf.Floor(self.transform.localPosition.x * GameConst.RealToLogic)
+	self.syncPosMsg.curPos.y = Mathf.Floor(self.transform.localPosition.y * GameConst.RealToLogic)
+	self.syncPosMsg.curPos.z = Mathf.Floor(self.transform.localPosition.z * GameConst.RealToLogic)
+	HallConnector:GetInstance():SendMapMessage(CSCommon_pb.Scene, SceneProtocol_pb.SyncPos, self.syncPosMsg)
+	print("OnSyncPos ", self.syncPosMsg.curPos.x, self.syncPosMsg.curPos.y, self.syncPosMsg.curPos.z)
 end
 
 local function OnMoveEvent(self)
@@ -74,12 +96,12 @@ local function OnMoveEvent(self)
 		return
 	end
 	self:OnSyncMove(lastMove, EActorLookState.Running)
-	self.lastMoveSyncTime = Time.time
 end
 
 local function OnMoveEndEvent(self)
 	self:OnSyncMove(Vector3.zero, EActorLookState.Idle) --结束移动，直接同步
 	self.lastMoveSyncTime = 0
+	self.lastSyncPosTime = 0
 end
 
 local function RegisterETCEvent(self)
@@ -100,6 +122,7 @@ ContorlComponent.__init = __init
 ContorlComponent.__delete = __delete
 ContorlComponent.LateUpdate = LateUpdate
 ContorlComponent.OnSyncMove = OnSyncMove
+ContorlComponent.OnSyncPos = OnSyncPos
 ContorlComponent.OnMoveEvent = OnMoveEvent
 ContorlComponent.OnMoveEndEvent = OnMoveEndEvent
 ContorlComponent.RegisterETCEvent = RegisterETCEvent
