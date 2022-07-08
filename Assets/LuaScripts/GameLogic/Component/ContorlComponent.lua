@@ -90,7 +90,7 @@ local function OnSyncPos(self)
 end
 
 local function OnMoveEvent(self)
-    local lastMove = CS.ETCInput.GetAxisLastMove("Joystick")
+    local lastMove = self.chara_ctrl.velocity
 	local distance =  Vector3.Distance(self.lastMove, lastMove)
 	if distance < GameConst.FixMoveVec then --偏差值过大，进行同步
 		return
