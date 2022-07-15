@@ -88,6 +88,10 @@ local function ChangeLookState(self, state)
     self.animationComponent:ChangeState(state)
 end
 
+local function GetCurLookState(self)
+    return self.animationComponent:GetCurState()
+end
+
 local function GetAnimationNameByState(self, state)
     return self:OnGetAnimationNameByState(state)
 end
@@ -110,6 +114,7 @@ Actor.OnLateUpdate = OnLateUpdate
 Actor.GetActorType = GetActorType
 Actor.GetActorId = GetActorId
 Actor.ChangeLookState = ChangeLookState
+Actor.GetCurLookState = GetCurLookState 
 Actor.GetAnimationNameByState = GetAnimationNameByState
 Actor.OnGetAnimationNameByState = OnGetAnimationNameByState
 Actor.OnSyncMove = OnSyncMove

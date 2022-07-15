@@ -23,7 +23,7 @@ end
 
 local function LateUpdate(self)
     local state = self.state
-    if not self.chara_ctrl.isGrounded then
+    if not self.chara_ctrl.isGrounded and EActorLookState.Climbing ~= state then
         state = EActorLookState.Falling
     end
     local anim_name = self.actor:GetAnimationNameByState(state)
@@ -39,9 +39,14 @@ local function ChangeState(self, state)
     self.state = state
 end
 
+local function GetCurState(self)
+    return self.state
+end
+
 AnimationComponent.__init = __init
 AnimationComponent.__delete = __delete
 AnimationComponent.LateUpdate = LateUpdate
 AnimationComponent.ChangeState = ChangeState
+AnimationComponent.GetCurState = GetCurState
 
 return AnimationComponent

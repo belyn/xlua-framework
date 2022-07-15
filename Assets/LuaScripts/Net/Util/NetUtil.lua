@@ -31,15 +31,6 @@ local function SerializeMessage(msg_obj)
 	output = output..string.pack("=I2", string.len(send_msg))
 	output = output..send_msg
 
-	local proto_id, msg_id = CustomMsgIDMap.TranslateMsgId(msg_obj.MsgID)
-	if proto_id == CSCommon_pb.Scene and msg_id == SceneProtocol_pb.ReqMove then
-		Logger.Log("SerializeMessage, A:"..tostring(msg_obj.MsgProto))
-		local msg = CustomMsgIDMap.NewC2SProto(CSCommon_pb.Scene, SceneProtocol_pb.ReqMove)
-		msg:ParseFromString(send_msg)
-		Logger.Log("SerializeMessage, B:"..tostring(msg))
-		assert(msg.behavior ~= nil)
-	end
-
 	return output
 end
 

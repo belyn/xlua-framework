@@ -25,6 +25,9 @@ local function __init(self)
 	self.lastMoveSyncTime = 0
 	self.lastSyncPosTime = 0
 	CS.ETCInput.SetTurnMoveSpeed("Joystick", GameConst.AvatarSpeed)
+	-- 爬墙相关
+	self.raycastHitWall = nil
+	self.upWallSpeedEndTime = 0
 	self:RegisterETCEvent()
 end
 
@@ -34,22 +37,79 @@ local function __delete(self)
 	self:RemoveETCEvent()
 end
 
+local function IsClimbing(self)
+	return self.actor:GetCurLookState() == EActorLookState.Climbing
+end
+
+local function IsClimbInProcessing(self)
+	return self.actor:GetCurLookState() == EActorLookState.Climbing or self.actor:GetCurLookState() == EActorLookState.ClimbingUpWall
+end
+
 local function LateUpdate(self)
 	local input_H = CS.ETCInput.GetAxis("Horizontal")
 	local input_V = CS.ETCInput.GetAxis("Vertical")
-	if not self.chara_ctrl.isGrounded then
-		self.actor:ChangeLookState(EActorLookState.Falling)
-	elseif input_V ~= 0 or input_H ~= 0 then
-		self.actor:ChangeLookState(EActorLookState.Running)
+
+	-- 爬墙逻辑
+	if IsClimbing(self) then
+		assert(not IsNull(self.raycastHitWall))
+		assert(not IsNull(self.raycastHitWall.collider))
+		local closestPos = self.raycastHitWall.collider:ClosestPoint(self.transform.localPosition)
+		if Vector3.Distance(self.transform.localPosition, closestPos) > GameConst.ClimbExitDistance then
+			-- 退出爬墙状态
+			self.raycastHitWall = nil
+			self.actor:ChangeLookState(EActorLookState.ClimbingUpWall)
+			CS.ETCInput.SetAxisGravity("Horizontal", -1 * GameConst.ClimbUpWallSpeed)
+			self.upWallSpeedEndTime = Time.realtimeSinceStartup + GameConst.ClimbUpWallTime
+		end
+	elseif IsClimbInProcessing(self) then
+		if self.upWallSpeedEndTime < Time.realtimeSinceStartup then
+			-- 爬墙完成，恢复重力
+			CS.ETCInput.SetAxisGravity("Horizontal", GameConst.Gravity)
+			self.actor:ChangeLookState(EActorLookState.Idle)
+		else
+			local dir = self.transform:TransformDirection(Vector3.forward)
+			Logger.Log("dir="..tostring(dir))
+			local moveDetal = dir * GameConst.AvatarSpeed * Time.deltaTime
+			moveDetal.y = GameConst.ClimbUpWallSpeed * Time.deltaTime 
+			Logger.Log("moveDetal="..tostring(moveDetal))
+			self.chara_ctrl:Move(moveDetal)
+		end
 	else
-		self.actor:ChangeLookState(EActorLookState.Idle)
+		if not self.chara_ctrl.isGrounded then
+			self.actor:ChangeLookState(EActorLookState.Falling)
+		elseif input_V ~= 0 or input_H ~= 0 then
+			self.actor:ChangeLookState(EActorLookState.Running)
+		else
+			self.actor:ChangeLookState(EActorLookState.Idle)
+		end
 	end
+
+	-- 爬墙检测，正在行走时才需要判断 
+	if self.actor:GetCurLookState() == EActorLookState.Running then
+		local wallLayerMask = LayerMask.GetMask("Wall")
+		print("wallLayerMask="..wallLayerMask)
+		self.raycastHitWall = CS.PhysicsUtils.Raycast(self.transform.localPosition, self.transform:TransformDirection(Vector3.forward), GameConst.ClimbEnterDistance, wallLayerMask)
+		if not IsNull(self.raycastHitWall.collider) then
+			-- 碰到墙体，进入爬墙状态
+			self.actor:ChangeLookState(EActorLookState.Climbing)
+			local joystick = CS.ETCInput.GetControlJoystick("Joystick")
+			assert(not IsNull(joystick))
+			CS.ETCInput.SetAxisGravity("Horizontal", -1 * GameConst.ClimbSpeed)
+		else 
+			self.raycastHitWall = nil
+		end
+	end
+
 	--移动中，定时同步/、广播移动向量
 	if self.lastMoveSyncTime ~= 0 and self.lastMoveSyncTime + GameConst.FixMoveVecTime < Time.time then
-		local lastMove = CS.ETCInput.GetAxisLastMove("Joystick")
+		local lastMove = self.chara_ctrl.velocity
 		local distance =  Vector3.Distance(self.lastMove, lastMove)
 		if distance > 0 then --向量有偏差
-			self:OnSyncMove(lastMove, EActorLookState.Running)
+			local state = EActorLookState.Running
+			if IsClimbInProcessing(self) then
+				state = self.actor:GetCurLookState()
+			end
+			self:OnSyncMove(lastMove, state)
 		end
 		self.lastMoveSyncTime = Time.time
 	end
@@ -95,7 +155,11 @@ local function OnMoveEvent(self)
 	if distance < GameConst.FixMoveVec then --偏差值过大，进行同步
 		return
 	end
-	self:OnSyncMove(lastMove, EActorLookState.Running)
+	local state = EActorLookState.Running
+	if IsClimbInProcessing(self) then
+		state = self.actor:GetCurLookState()
+	end
+	self:OnSyncMove(lastMove, state)
 end
 
 local function OnMoveEndEvent(self)

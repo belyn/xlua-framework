@@ -47,6 +47,10 @@ local function OnGetAnimationNameByState(self, state)
         return "Running (1)"
     elseif EActorLookState.Falling == state then
         return "Falling"
+    elseif EActorLookState.Climbing == state then
+        return "Climbing"
+    elseif EActorLookState.ClimbingUpWall == state then
+        return "ClimbingUpWall"
     end
 end
 

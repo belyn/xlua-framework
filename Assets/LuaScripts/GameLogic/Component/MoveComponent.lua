@@ -41,6 +41,18 @@ local function OnMove(self, msg_proto)
     end
     self.moveVec = moveVec
     self.moveVec.y = -GameConst.Gravity --施加重力
+
+    local dir = Vector3.Clone(self.moveVec)
+    dir.y = 0
+    dir:Normalize()
+    -- 爬墙检测
+    local raycastHit = CS.PhysicsUtils.Raycast(self.transform.localPosition, dir, Mathf.Infinity, 1 << 8)
+    if not IsNull(raycastHit.collider) then
+       print("hit wall") 
+    else
+       print("no hit wall") 
+    end
+
 end
 
 MoveComponent.__init = __init

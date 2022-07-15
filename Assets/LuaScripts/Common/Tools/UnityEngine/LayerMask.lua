@@ -7,7 +7,6 @@
 -- 注意：
 -- 1、已经被修改，别从tolua轻易替换来做升级
 
-local Layer = Layer
 local rawget = rawget
 local setmetatable = setmetatable
 
@@ -31,7 +30,7 @@ function LayerMask:Get()
 end
 
 function LayerMask.NameToLayer(name)
-	return Layer[name]
+	return unity_layermask.NameToLayer(name)
 end
 
 function LayerMask.GetMask(...)

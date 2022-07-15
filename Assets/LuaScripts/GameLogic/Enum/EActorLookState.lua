@@ -7,6 +7,8 @@ local EActorLookState = {
 	Idle = 101,
 	Running = 102,
 	Falling = 103,
+	Climbing = 104,
+	ClimbingUpWall = 105,
 }
 
 return ConstClass("EActorLookState", EActorLookState)

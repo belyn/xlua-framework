@@ -22,6 +22,10 @@ namespace ECS
         {
             return entityMgr.GetComponentObject<Transform>(entity);
         }
+        public static Rigidbody GetRigidbody(this EntityManager entityMgr, Entity entity)
+        {
+            return entityMgr.GetComponentObject<Rigidbody>(entity);
+        }
         public static Entity AddGameObjectEntity(this EntityManager entityMgr, GameObject gameObject)
         {
             return GameObjectEntity.AddToEntityManager(entityMgr, gameObject);
